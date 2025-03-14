@@ -1,0 +1,59 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+  transition: color-scheme 0.3s ease;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.prose {
+  --tw-prose-body: #374151;
+  --tw-prose-headings: #111827;
+  --tw-prose-links: #3b82f6;
+  --tw-prose-code: #1e293b;
+}
+
+.dark .prose {
+  --tw-prose-body: #e5e7eb;
+  --tw-prose-headings: #f9fafb;
+  --tw-prose-links: #60a5fa;
+  --tw-prose-code: #cbd5e1;
+}
+
+/* 代码块暗黑模式适配 */
+.dark .hljs {
+  background: #1f2937 !important;
+  color: #f3f4f6 !important;
+}
+
+@layer components {
+  .line-render {
+    @apply p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded cursor-text;
+  }
+  
+  .line-edit {
+    @apply w-full p-1 bg-white dark:bg-slate-800 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500;
+  }
+}

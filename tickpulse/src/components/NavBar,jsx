@@ -1,0 +1,40 @@
+'use client';
+
+import { useTheme } from '@/context/ThemeContext';
+import { UserCircleIcon, ListBulletIcon, CalendarIcon, ClockIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+
+export default function NavBar() {
+  const { darkMode, toggleTheme } = useTheme();
+  
+  return (
+    <nav className="w-16 bg-white dark:bg-slate-800 flex flex-col items-center py-4 border-r">
+      <button className="p-2 mb-6">
+        <UserCircleIcon className="h-8 w-8 text-gray-600 dark:text-gray-300" />
+      </button>
+      
+      <div className="flex-1 space-y-4">
+        <NavItem active Icon={ListBulletIcon} />
+        <NavItem Icon={CalendarIcon} />
+        <NavItem Icon={ClockIcon} />
+      </div>
+
+      <div className="space-y-4">
+        <NavItem Icon={Cog6ToothIcon} />
+        <button 
+          onClick={toggleTheme}
+          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700"
+        >
+          {darkMode ? '🌞' : '🌙'}
+        </button>
+      </div>
+    </nav>
+  );
+}
+
+function NavItem({ Icon, active = false }) {
+  return (
+    <button className={`p-2 rounded-lg ${active ? 'bg-blue-100 dark:bg-slate-700' : 'hover:bg-gray-100 dark:hover:bg-slate-700'}`}>
+      <Icon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+    </button>
+  );
+}
