@@ -5,7 +5,7 @@ import { useTasks } from '@/context/TaskContext';
 import "@/styles/globals.css";
 
 export default function TaskList() {
-  const { tasks, dispatch } = useTasks();
+  const { tasks, dispatch, selectedTaskId } = useTasks(); // 获取selectedTaskId
   const [newTask, setNewTask] = useState('');
 
   const handleAddTask = (e) => {
@@ -28,20 +28,30 @@ export default function TaskList() {
       />
       <div className="space-y-2">
         {tasks.map(task => (
-          <div key={task.id} className="flex items-center justify-between p-2 hover:bg-gray-100 dark:hover:bg-zinc-600 text-black dark:text-gray-100 rounded">
+          <div
+            key={task.id}
+            className={`flex items-center justify-between p-2 text-black dark:text-gray-100 rounded transition-colors
+            ${task.id === selectedTaskId
+                ? 'bg-gray-200 dark:bg-zinc-500'
+                : 'hover:bg-gray-100 dark:hover:bg-zinc-600'}`}
+            onClick={() => dispatch({ type: 'SELECT_TASK', payload: task.id })}>
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 checked={task.completed}
                 onChange={() => dispatch({ type: 'TOGGLE_TASK', payload: task.id })}
                 className="h-4 w-4"
+                onClick={(e) => e.stopPropagation()}
               />
-              <span className={task.completed ? 'line-through text-gray-400' : ''}>
+              <span className={`${task.completed ? 'line-through text-gray-400' : ''} truncate max-w-[700px]`}>
                 {task.title}
               </span>
             </div>
             <button
-              onClick={() => dispatch({ type: 'DELETE_TASK', payload: task.id })}
+              onClick={(e) => {
+                e.stopPropagation();
+                dispatch({ type: 'DELETE_TASK', payload: task.id });
+              }}
               className="text-red-500 hover:text-red-700"
             >
               ×

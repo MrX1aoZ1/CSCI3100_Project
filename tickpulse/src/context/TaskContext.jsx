@@ -19,8 +19,8 @@ const taskReducer = (state, action) => {
     case 'TOGGLE_TASK':
       return {
         ...state,
-        tasks: state.tasks.map(task => 
-          task.id === action.payload ? {...task, completed: !task.completed} : task
+        tasks: state.tasks.map(task =>
+          task.id === action.payload ? { ...task, completed: !task.completed } : task
         )
       };
     case 'DELETE_TASK':
@@ -29,12 +29,15 @@ const taskReducer = (state, action) => {
         tasks: state.tasks.filter(task => task.id !== action.payload)
       };
     case 'SELECT_TASK':
-      return {...state, selectedTaskId: action.payload};
+      return {
+        ...state,
+        selectedTaskId: action.payload
+      };
     case 'UPDATE_CONTENT':
       return {
         ...state,
-        tasks: state.tasks.map(task => 
-          task.id === action.payload.id ? {...task, content: action.payload.content} : task
+        tasks: state.tasks.map(task =>
+          task.id === action.payload.id ? { ...task, content: action.payload.content } : task
         )
       };
     default:
@@ -50,7 +53,7 @@ export function TaskProvider({ children }) {
   });
 
   return (
-    <TaskContext.Provider value={{...state, dispatch}}>
+    <TaskContext.Provider value={{ ...state, dispatch }}>
       {children}
     </TaskContext.Provider>
   );
