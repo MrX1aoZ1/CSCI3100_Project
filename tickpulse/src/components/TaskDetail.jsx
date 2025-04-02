@@ -1,47 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useTasks } from '@/context/TaskContext';
-import MarkdownEditor from './MarkdownEditor';
 
 export default function TaskDetail() {
-  const { tasks, selectedTaskId, dispatch } = useTasks();
-  const [content, setContent] = useState('');
-
-  const selectedTask = tasks.find(t => t.id === selectedTaskId);
-
-  useEffect(() => {
-    setContent(selectedTask?.content || '');
-  }, [selectedTask]);
-
-  const handleContentChange = (newValue) => {
-    if (!selectedTask) return;
-    dispatch({ 
-      type: 'UPDATE_CONTENT', 
-      payload: { id: selectedTask.id, content: newValue } 
-    });
-  };
+  const { tasks, selectedTaskId } = useTasks();
+  const selectedTask = tasks.find(task => task.id === selectedTaskId);
 
   return (
-    <div className="h-full flex flex-col border-l">
-      <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold">
-          {selectedTask?.title || '任务详情'}
-        </h2>
-      </div>
-      
-      <div className="flex-1 overflow-hidden">
-        {selectedTask ? (
-          <MarkdownEditor 
-            value={content}
-            onChange={handleContentChange}
+    <div className="p-4 border-l h-full">
+      {selectedTask ? (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">{selectedTask.title}</h2>
+          <textarea
+            value={selectedTask.content}
+            onChange={(e) => dispatch({
+              type: 'UPDATE_CONTENT',
+              payload: { id: selectedTask.id, content: e.target.value }
+            })}
+            className="w-full h-64 p-2 border rounded"
+            placeholder="输入任务详情..."
           />
-        ) : (
-          <div className="h-full flex items-center justify-center text-gray-500">
-            请从左侧选择任务
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="h-full flex items-center justify-center text-gray-400">
+          请选择任务查看详情
+        </div>
+      )}
     </div>
   );
 }

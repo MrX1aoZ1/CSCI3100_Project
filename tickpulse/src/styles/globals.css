@@ -4,56 +4,73 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light dark;
-  transition: color-scheme 0.3s ease;
+  --nav-bg: #f0f0f0;
+  --category-bg: #ffffff;
+  --list-bg: #ffffff;
+  --details-bg: #ffffff;
+  --text-color: #000000;
+  --completed-color: #888888;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.app.dark {
+  --nav-bg: #333333;
+  --category-bg: #444444;
+  --list-bg: #444444;
+  --details-bg: #444444;
+  --text-color: #ffffff;
+  --completed-color: #aaaaaa;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.app {
+  display: flex;
+  color: var(--text-color);
+  background-color: var(--background-color);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.navigation-bar {
+  width: 100px;
+  background-color: var(--nav-bg);
+  padding: 10px;
 }
 
-.prose {
-  --tw-prose-body: #374151;
-  --tw-prose-headings: #111827;
-  --tw-prose-links: #3b82f6;
-  --tw-prose-code: #1e293b;
+.tasks-module {
+  display: flex;
+  flex: 1;
 }
 
-.dark .prose {
-  --tw-prose-body: #e5e7eb;
-  --tw-prose-headings: #f9fafb;
-  --tw-prose-links: #60a5fa;
-  --tw-prose-code: #cbd5e1;
+.task-categories {
+  flex: 2;
+  background-color: var(--category-bg);
+  padding: 10px;
 }
 
-/* 代码块暗黑模式适配 */
-.dark .hljs {
-  background: #1f2937 !important;
-  color: #f3f4f6 !important;
+.task-list {
+  flex: 3;
+  background-color: var(--list-bg);
+  padding: 10px;
 }
 
-@layer components {
-  .line-render {
-    @apply p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded cursor-text;
-  }
-  
-  .line-edit {
-    @apply w-full p-1 bg-white dark:bg-slate-800 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500;
-  }
+.task-details {
+  flex: 3;
+  background-color: var(--details-bg);
+  padding: 10px;
+}
+
+.task-row {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.task-row.completed {
+  text-decoration: line-through;
+  color: var(--completed-color);
+}
+
+.task-row.selected {
+  background-color: #e0e0e0;
+}
+
+.app.dark .task-row.selected {
+  background-color: #555555;
 }
