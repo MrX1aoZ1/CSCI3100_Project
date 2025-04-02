@@ -3,6 +3,7 @@
 import TaskCategories from './TaskCategories';
 import TaskList from './TaskList';
 import TaskDetail from './TaskDetail';
+import "@/styles/globals.css";
 
 export default function TaskModule() {
   return (

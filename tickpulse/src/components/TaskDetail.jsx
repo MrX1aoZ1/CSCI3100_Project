@@ -1,6 +1,7 @@
 'use client';
 
 import { useTasks } from '@/context/TaskContext';
+import "@/styles/globals.css";
 
 export default function TaskDetail() {
   const { tasks, selectedTaskId } = useTasks();

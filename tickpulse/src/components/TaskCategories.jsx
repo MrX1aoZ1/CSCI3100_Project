@@ -1,6 +1,7 @@
 'use client';
 
 import { useTasks } from '@/context/TaskContext';
+import "@/styles/globals.css";
 
 const categories = [
   { id: 'all', name: '所有任务' },
@@ -19,8 +20,8 @@ export default function TaskCategories() {
           key={category.id}
           className={`w-full p-2 text-left rounded ${
             activeCategory === category.id 
-              ? 'bg-blue-100 dark:bg-slate-700' 
-              : 'hover:bg-gray-100 dark:hover:bg-slate-700'
+              ? 'bg-gray-200 dark:bg-zinc-500 text-black dark:text-gray-100' 
+              : 'hover:bg-gray-100 dark:hover:bg-zinc-600 text-black dark:text-gray-100'
           }`}
         >
           {category.name}

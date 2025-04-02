@@ -2,6 +2,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --nav-bg: #f0f0f0;
@@ -12,7 +13,7 @@
   --completed-color: #888888;
 }
 
-.app.dark {
+[data-theme="dark"] {
   --nav-bg: #333333;
   --category-bg: #444444;
   --list-bg: #444444;
