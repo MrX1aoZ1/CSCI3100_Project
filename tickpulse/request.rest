@@ -1,0 +1,47 @@
+GET http://localhost:3000/posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMTY2NDY5MTEzMWVAZ21haWwuY29tIiwiaWF0IjoxNzQ2MDA2NjEwLCJleHAiOjE3NDYwMDY2NzB9.rUkbGL9TgNKLOcg1Sg5C5hbWgWmwgbOxybuBhPp7NLE
+
+###
+
+DELETE http://localhost:4000/logout
+Content-Type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMTY2NDY5MTEzMWVAZ21haWwuY29tIiwiaWF0IjoxNzQ2MDA2NjEwfQ.tYBEyl0fN0JFRe_fkXEVNIBabznIgpvzvUHxvLUsiEs"
+}
+
+###
+
+POST http://localhost:4000/token
+Content-Type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMTY2NDY5MTEzMWVAZ21haWwuY29tIiwiaWF0IjoxNzQ2MDA2NjEwfQ.tYBEyl0fN0JFRe_fkXEVNIBabznIgpvzvUHxvLUsiEs"
+}
+
+###
+
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "username": "1664691131e@gmail.com"
+}
+
+### 
+POST http://localhost:3000/sign-up
+Content-Type: application/json
+
+{
+    "email": "www@gmail.com",
+    "password": "1234567dj"
+}
+
+###
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "email": "www@gmail.com",
+    "password": "1234567dj"
+}
