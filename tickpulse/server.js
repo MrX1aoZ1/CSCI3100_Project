@@ -62,7 +62,7 @@ function verifyToken(req, res, next) {
 app.set('view-engine', 'ejs')
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json());
-app.use(flash())
+
 
 app.use(session({
   secret: process.env.ACCESS_TOKEN_SECRET,
@@ -71,8 +71,6 @@ app.use(session({
 }))
 app.use(passport.initialize())
 app.use(passport.session())
-
-app.use(methodOverride('_method'))
 
 function generateAccessToken(user) {
   const jti = uuidv4(); // Unique identifier for the token
