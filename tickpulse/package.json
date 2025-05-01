@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "devStart": "nodemon server.js",
+    "devStart": "nodemon backend/server.js",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",

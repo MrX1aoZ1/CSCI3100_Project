@@ -2,13 +2,13 @@
 @baseUrl = http://localhost:3000
 @contentType = application/json
 
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5NmQ3NmIwYS0yYzc4LTQ2ODItODQ0MS03Mjg3ZGRmNGI5MjQiLCJpYXQiOjE3NDYwODgwMzAsImV4cCI6MTc0NjA4ODA2MH0.P-KeR1FuT47JLeLqASbkbp50l_oa3igc6uBC5eO0TVU
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwYzVlZjQ3Yy02OTEwLTRiZWItYjI4OS1mZjE2OTY2ZDdkYTUiLCJpYXQiOjE3NDYwOTgzOTEsImV4cCI6MTc0NjA5OTI5MX0.BdYAlKmklBFEogJIopwHH62DDxgfUlXLhuul3-XPFfU
 
 @refresh_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNzQ2MDg2MTc2NjUwIiwiaWF0IjoxNzQ2MDg4MDEyLCJleHAiOjE3NDYxNzQ0MTJ9.xkW6UnD0PUKwN3HVoX5hTxTT0nVWNbdPCVLgTslSnf0
 
 ### [1] 用户注册
 # @name signup
-POST {{baseUrl}}/sign-up
+POST {{baseUrl}}/auth/sign-up
 Content-Type: {{contentType}}
 
 {
@@ -18,7 +18,7 @@ Content-Type: {{contentType}}
 
 ### [2a] 用户登录
 # @name login
-POST {{baseUrl}}/login
+POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
@@ -28,7 +28,7 @@ Content-Type: {{contentType}}
 
 ### [2b] 用户登录
 # @name login
-POST {{baseUrl}}/login
+POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
@@ -59,7 +59,7 @@ GET {{baseUrl}}/api/protected-data
 Authorization: Bearer {{access_token}}
 
 ### [7] 注销操作
-DELETE {{baseUrl}}/logout
+DELETE {{baseUrl}}/auth/logout
 Authorization: Bearer {{access_token}}
 
 ### [8] 失效令牌测试（应在注销后返回401）
