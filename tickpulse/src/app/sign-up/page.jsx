@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { FiMail, FiLock } from 'react-icons/fi';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { validate as isEmailValid } from 'email-validator';
 
@@ -11,14 +11,21 @@ export default function RegisterPage() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState('w@w');
+  const [password, setPassword] = useState('078529dj');
+  const [confirmPassword, setConfirmPassword] = useState('078529dj');
 
   const [emailError, setEmailError] = useState(undefined);
   const [passwordError, setPasswordError] = useState(undefined);
   const [confirmPasswordError, setConfirmPasswordError] = useState(undefined);
   const [formError, setFormError] = useState(undefined);
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      router.push('/');
+    }
+  }, []);
 
   const submitHandler = useCallback(
     async (event) => {

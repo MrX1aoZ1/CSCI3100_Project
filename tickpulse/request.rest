@@ -1,47 +1,67 @@
-GET http://localhost:3000/posts
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMTY2NDY5MTEzMWVAZ21haWwuY29tIiwiaWF0IjoxNzQ2MDA2NjEwLCJleHAiOjE3NDYwMDY2NzB9.rUkbGL9TgNKLOcg1Sg5C5hbWgWmwgbOxybuBhPp7NLE
+### 环境变量定义
+@baseUrl = http://localhost:3000
+@contentType = application/json
 
-###
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5NmQ3NmIwYS0yYzc4LTQ2ODItODQ0MS03Mjg3ZGRmNGI5MjQiLCJpYXQiOjE3NDYwODgwMzAsImV4cCI6MTc0NjA4ODA2MH0.P-KeR1FuT47JLeLqASbkbp50l_oa3igc6uBC5eO0TVU
 
-DELETE http://localhost:4000/logout
-Content-Type: application/json
+@refresh_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNzQ2MDg2MTc2NjUwIiwiaWF0IjoxNzQ2MDg4MDEyLCJleHAiOjE3NDYxNzQ0MTJ9.xkW6UnD0PUKwN3HVoX5hTxTT0nVWNbdPCVLgTslSnf0
 
-{
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMTY2NDY5MTEzMWVAZ21haWwuY29tIiwiaWF0IjoxNzQ2MDA2NjEwfQ.tYBEyl0fN0JFRe_fkXEVNIBabznIgpvzvUHxvLUsiEs"
-}
-
-###
-
-POST http://localhost:4000/token
-Content-Type: application/json
+### [1] 用户注册
+# @name signup
+POST {{baseUrl}}/sign-up
+Content-Type: {{contentType}}
 
 {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMTY2NDY5MTEzMWVAZ21haWwuY29tIiwiaWF0IjoxNzQ2MDA2NjEwfQ.tYBEyl0fN0JFRe_fkXEVNIBabznIgpvzvUHxvLUsiEs"
+    "email": "testuser@example.com",
+    "password": "P@ssw0rd123!"
 }
 
-###
-
-POST http://localhost:3000/login
-Content-Type: application/json
+### [2a] 用户登录
+# @name login
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
 
 {
-    "username": "1664691131e@gmail.com"
+    "email": "testuse@example.com",
+    "password": "P@ssw0rd23!"
 }
 
-### 
-POST http://localhost:3000/sign-up
-Content-Type: application/json
+### [2b] 用户登录
+# @name login
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
 
 {
-    "email": "www@gmail.com",
-    "password": "1234567dj"
+    "email": "testuser@example.com",
+    "password": "P@ssw0rd123!"
 }
 
-###
-POST http://localhost:3000/login
-Content-Type: application/json
+### [3] 访问受保护数据 Access
+GET {{baseUrl}}/api/protected-data
+Authorization: Bearer {{access_token}}
+
+### [4] 验证令牌有效性 Access
+GET {{baseUrl}}/api/verify-token
+Authorization: Bearer {{access_token}}
+
+### [5] 刷新访问令牌 Refresh
+# @name refresh
+POST {{baseUrl}}/api/refresh-token
+Content-Type: {{contentType}}
 
 {
-    "email": "www@gmail.com",
-    "password": "1234567dj"
+    "refreshToken": "{{refresh_token}}"
 }
+
+
+### [6] 使用新令牌访问数据
+GET {{baseUrl}}/api/protected-data
+Authorization: Bearer {{access_token}}
+
+### [7] 注销操作
+DELETE {{baseUrl}}/logout
+Authorization: Bearer {{access_token}}
+
+### [8] 失效令牌测试（应在注销后返回401）
+GET {{baseUrl}}/api/protected-data
+Authorization: Bearer {{access_token}}

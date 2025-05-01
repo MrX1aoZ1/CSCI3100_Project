@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "devStart": "nodemon server.js",
-    "devStartAuth": "nodemon authServer.js",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
