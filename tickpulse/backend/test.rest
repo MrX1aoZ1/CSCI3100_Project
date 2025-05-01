@@ -1,0 +1,109 @@
+@jwt_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzQ2MDk1MjUzLCJleHAiOjE3NDY3MDAwNTN9.ALFMxzFZYx1PvSsk4aCJ0jNKo1-6jzNtcHJjzERIt0I  
+
+### Get All Tasks
+GET http://localhost:8000/api/tasks
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+###
+
+### Get Task by ID
+GET http://localhost:8000/api/tasks/1
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+###
+
+### Create a New Task
+POST http://localhost:8000/api/tasks
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+    "task_name": "Test Task",
+    "content": "This is a test task.",
+    "status": "pending",
+    "deadline": "2025-05-10 12:00:00",
+    "priority": "medium",
+    "user_id": 1,
+    "category_name": "Test Category"
+}
+
+###
+
+### Update a Task
+PUT http://localhost:8000/api/tasks/1
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+    "task_name": "Updated Task",
+    "content": "This is an updated task.",
+    "status": "in-progress",
+    "deadline": "2025-05-15 12:00:00",
+    "priority": "high",
+    "user_id": 1,
+    "category_name": "Updated Category"
+}
+
+###
+
+### Delete a Task
+DELETE http://localhost:8000/api/tasks/1
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+###
+
+### Update Task Status
+PUT http://localhost:8000/api/tasks/1/status
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+    "status": "completed"
+}
+
+###
+
+### Update Task Priority
+PUT http://localhost:8000/api/tasks/1/priority
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+    "priority": "low"
+}
+
+###
+
+### Update Task Deadline
+PUT http://localhost:8000/api/tasks/1/deadline
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+    "deadline": "2025-06-01 12:00:00"
+}
+
+###
+
+### Update Task Category
+PUT http://localhost:8000/api/tasks/1/category
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+    "category_name": "New Category"
+}
+
+###
+
+### Update Task Content
+PUT http://localhost:8000/api/tasks/1/content
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
+
+{
+    "content": "Updated task content."
+}

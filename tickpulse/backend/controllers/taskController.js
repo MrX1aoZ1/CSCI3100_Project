@@ -23,6 +23,7 @@ const getTaskById = async (req, res) => {
     try {
         const connection = await connectDB();
         const [tasks] = await connection.query('SELECT * FROM tasks WHERE id = ?', [req.params.id]);
+        
         if (tasks.length === 0) {
             return res.status(404).json({ message: 'Task not found' });
         }
@@ -46,6 +47,7 @@ const createTask = async (req, res) => {
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [task_name, content, status, deadline, priority, user_id, category_name]
         );
+       
         res.status(201).json({ id: result.insertId, task_name, content, status, deadline, priority, user_id, category_name });
         await connection.end();
     } catch (error) {
