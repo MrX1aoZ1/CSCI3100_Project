@@ -71,10 +71,11 @@ export default function ProjectList() {
    };
 
 
-  // Update project selection to use SET_VIEW
+  // Update project selection to use separate actions
   const handleSelectProject = (projectId) => {
     if (editingProjectId !== projectId) {
-        dispatch({ type: 'SET_VIEW', payload: { view: 'project', projectId: projectId } });
+      dispatch({ type: 'SET_VIEW', payload: 'project' });
+      dispatch({ type: 'SELECT_PROJECT', payload: String(projectId) });
     }
   };
 
@@ -148,7 +149,8 @@ export default function ProjectList() {
       {isProjectListOpen && (
           <nav className="flex-1 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:scrollbar-thumb-zinc-600 dark:hover:scrollbar-thumb-zinc-500">
             {projects.map((project) => {
-              const isSelected = isClient ? (selectedView === 'project' && project.id === selectedProjectId) : false;
+              // Fix: always compare as string
+              const isSelected = isClient ? (selectedView === 'project' && String(project.id) === String(selectedProjectId)) : false;
               const isDraggingOver = dragOverProjectId === project.id; // Check if dragging over this project
 
               const baseClasses = "flex items-center justify-between p-2 rounded cursor-pointer group text-sm text-black dark:text-gray-100 transition-colors duration-150 ease-in-out";

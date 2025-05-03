@@ -21,21 +21,22 @@ export default function TaskList() {
     let match = true;
 
     if (selectedView === 'project') {
-      const taskProjectId = task.projectId === null ? "null" : task.projectId;
-      const selectedProjId = selectedProjectId === null ? "null" : selectedProjectId;
+      // Always compare as strings and default to 'inbox'
+      const taskProjectId = String(task.projectId || 'inbox');
+      const selectedProjId = String(selectedProjectId || 'inbox');
       match = taskProjectId === selectedProjId;
     } else if (selectedView === 'filter') {
       const today = getTodayDateString();
       switch (activeFilter) {
         case 'all':
-          match = task.status !== 'abandoned';
+          match = true;
           break;
         case 'today':
           match = task.deadline === today && !task.completed;
           break;
         case 'completed':
-           match = task.completed;
-           break;
+          match = task.completed === true;
+          break;
         default:
           match = false;
       }
@@ -46,7 +47,12 @@ export default function TaskList() {
     return match;
   });
 
-  console.log('Filtered tasks:', filteredTasks);
+  // Always call hooks at the top level, not inside any condition
+  useEffect(() => {
+    if (filteredTasks.length === 0 && selectedTaskId) {
+      dispatch({ type: 'SELECT_TASK', payload: null });
+    }
+  }, [filteredTasks.length, selectedTaskId, dispatch]);
 
   const getPriorityClasses = (priority) => {
     switch (priority) {

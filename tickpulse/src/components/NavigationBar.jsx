@@ -19,6 +19,7 @@ export default function NavigationBar() {
 
   // Function to handle filter selection
   const handleFilterSelect = (filter) => {
+    console.log(`Setting filter to: ${filter}`);
     dispatch({ type: 'SET_VIEW', payload: 'filter' });
     dispatch({ type: 'SET_ACTIVE_FILTER', payload: filter });
   };

@@ -30,7 +30,9 @@ export default function TaskModule() {
         title: trimmedTitle,
         deadline: newTaskDeadline === '' ? null : newTaskDeadline,
         priority: newTaskPriority,
-        projectId: newTaskProjectId === "null" ? null : newTaskProjectId
+        // Fix: assign to 'inbox' if no project selected
+        projectId: newTaskProjectId === "null" ? "inbox" : newTaskProjectId,
+        completed: false // 确保新任务默认为未完成状态
       };
       // Log the payload before dispatching
       console.log('Dispatching ADD_TASK with payload:', payload);

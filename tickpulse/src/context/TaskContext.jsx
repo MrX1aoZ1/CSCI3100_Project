@@ -64,11 +64,7 @@ const loadState = () => {
 
 // --- Reducer ---
 const taskReducer = (state, action) => {
-  // Log every action received (optional, but helpful for debugging)
-  // console.log('Reducer received action:', action);
-
   switch (action.type) {
-    // New action to hydrate state from localStorage
     case 'HYDRATE_STATE':
       // Merge loaded state with initial state structure, prioritizing loaded values
       // Ensure all keys from initialState are present
@@ -81,29 +77,51 @@ const taskReducer = (state, action) => {
                   : [...(action.payload?.projects || []), { id: 'inbox', name: 'Inbox' }].filter((p, i, arr) => arr.findIndex(t => t.id === p.id) === i), // Ensure inbox exists and is unique
       };
 
-    case 'ADD_TASK':
-      // This case should now correctly receive deadline, priority, and projectId from the payload
+    case 'ADD_TASK': {
+      const newId = uuidv4();
+      const newTask = {
+        id: newId,
+        title: action.payload.title,
+        content: action.payload.content || '',
+        deadline: action.payload.deadline,
+        priority: action.payload.priority || 'none',
+        projectId: action.payload.projectId,
+        completed: false,
+        createdAt: new Date().toISOString(),
+      };
       return {
         ...state,
-        tasks: [...state.tasks, {
-          id: uuidv4(),
-          title: action.payload.title, // From payload
-          completed: false,
-          content: '', // Default or handle later
-          deadline: action.payload.deadline, // From payload
-          priority: action.payload.priority || 'none', // Changed default to 'none'
-          projectId: action.payload.projectId // From payload
-        }]
+        tasks: [...state.tasks, newTask]
       };
+    }
 
-    case 'TOGGLE_TASK':
-      // ... existing TOGGLE_TASK logic ...
-       return {
-         ...state,
-         tasks: state.tasks.map(task =>
-           task.id === action.payload ? { ...task, completed: !task.completed } : task
-         )
-       };
+    case 'TOGGLE_TASK': {
+      const updatedTasks = state.tasks.map(task =>
+        task.id === action.payload
+          ? { ...task, completed: !task.completed }
+          : task
+      );
+      return {
+        ...state,
+        tasks: updatedTasks
+      };
+    }
+
+    case 'SET_VIEW': {
+      console.log('Setting view to:', action.payload);
+      return {
+        ...state,
+        selectedView: action.payload
+      };
+    }
+
+    case 'SET_ACTIVE_FILTER': {
+      console.log('Setting active filter to:', action.payload);
+      return {
+        ...state,
+        activeFilter: action.payload
+      };
+    }
 
     case 'DELETE_TASK':
       // ... existing DELETE_TASK logic ...
@@ -188,6 +206,14 @@ const taskReducer = (state, action) => {
            project.id === action.payload.projectId ? { ...project, name: action.payload.newName } : project
          )
        };
+
+    case 'SELECT_PROJECT':
+      return {
+        ...state,
+        selectedProjectId: action.payload,
+        selectedView: 'project', // Optionally ensure view is set
+        selectedTaskId: null,    // Optionally deselect any task
+      };
 
     case 'SET_VIEW':
       // ... existing SET_VIEW logic ...
