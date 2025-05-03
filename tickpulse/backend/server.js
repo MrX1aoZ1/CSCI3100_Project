@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const connectDB = require("./config/db");
-const jwt = require('jsonwebtoken');
 
 const app = express();
 
@@ -31,9 +30,6 @@ const createUserTable = require('./models/User');
 (async () => {
     await createUserTable();
 })();
-
-const token = jwt.sign({ id: 1 }, process.env.JWT_SECRET, { expiresIn: '7d' });
-console.log('Generated Token:', token);
 
 // Middleware    
 app.use(express.json());
