@@ -2,9 +2,8 @@
 @baseUrl = http://localhost:3000
 @contentType = application/json
 
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwYzVlZjQ3Yy02OTEwLTRiZWItYjI4OS1mZjE2OTY2ZDdkYTUiLCJpYXQiOjE3NDYwOTgzOTEsImV4cCI6MTc0NjA5OTI5MX0.BdYAlKmklBFEogJIopwHH62DDxgfUlXLhuul3-XPFfU
-
-@refresh_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNzQ2MDg2MTc2NjUwIiwiaWF0IjoxNzQ2MDg4MDEyLCJleHAiOjE3NDYxNzQ0MTJ9.xkW6UnD0PUKwN3HVoX5hTxTT0nVWNbdPCVLgTslSnf0
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNzQ2Mjc5OTU0MDE2IiwiZW1haWwiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsImp0aSI6IjExYWUyNWFjLWYwM2ItNDRkZC1hM2E2LTExZDg0MzQ2ODdjNyIsImlhdCI6MTc0NjI3OTk4MywiZXhwIjoxNzQ2MjgwODgzfQ.inqf6gEV--Mj-PQUB4QwDFP8rp7ZT2fm9m6zTr4fO1s
+@refresh_token = 2ce622b2-39f5-4bd0-8b2a-36d7f5d2f96c
 
 ### [1] 用户注册
 # @name signup
@@ -14,16 +13,6 @@ Content-Type: {{contentType}}
 {
     "email": "testuser@example.com",
     "password": "P@ssw0rd123!"
-}
-
-### [2a] 用户登录
-# @name login
-POST {{baseUrl}}/auth/login
-Content-Type: {{contentType}}
-
-{
-    "email": "testuse@example.com",
-    "password": "P@ssw0rd23!"
 }
 
 ### [2b] 用户登录
@@ -59,8 +48,13 @@ GET {{baseUrl}}/api/protected-data
 Authorization: Bearer {{access_token}}
 
 ### [7] 注销操作
-DELETE {{baseUrl}}/auth/logout
+POST {{baseUrl}}/auth/logout
 Authorization: Bearer {{access_token}}
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "{{refresh_token}}"
+}
 
 ### [8] 失效令牌测试（应在注销后返回401）
 GET {{baseUrl}}/api/protected-data

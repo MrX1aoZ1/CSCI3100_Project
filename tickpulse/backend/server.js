@@ -10,6 +10,9 @@ const apiRoutes = require('./routes/apiRoutes');
 // 全局配置
 initializeMiddleware(app);
 
+app.use(express.json()); // 解析 JSON 请求体
+app.use(express.urlencoded({ extended: true })); // 解析 URL-encoded 请求体
+
 // 路由挂载
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
