@@ -2,12 +2,32 @@
 @baseUrl = http://localhost:3000
 @contentType = application/json
 
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNzQ2Mjc5OTU0MDE2IiwiZW1haWwiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsImp0aSI6IjExYWUyNWFjLWYwM2ItNDRkZC1hM2E2LTExZDg0MzQ2ODdjNyIsImlhdCI6MTc0NjI3OTk4MywiZXhwIjoxNzQ2MjgwODgzfQ.inqf6gEV--Mj-PQUB4QwDFP8rp7ZT2fm9m6zTr4fO1s
-@refresh_token = 2ce622b2-39f5-4bd0-8b2a-36d7f5d2f96c
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNzQ2MjkwNTA0MTcwIiwiZW1haWwiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsImp0aSI6ImI2ZWFiNDdmLTljZTItNDY5Ny1hMjE0LTIwYTUwOWFmNTNjMSIsImlhdCI6MTc0NjI5MDY0MSwiZXhwIjoxNzQ2MjkxNTQxfQ.GsyjKZPJWyHdBwlyUqhXMTMjuDvuQwiLRXSpp478uAY
+@refresh_token = b1b7020c-579d-4b52-a0a1-09c68695710a
 
-### [1] 用户注册
+### [1a] 用户注册
 # @name signup
 POST {{baseUrl}}/auth/sign-up
+Content-Type: {{contentType}}
+
+{
+    "email": "testuser@example.com",
+    "password": "P@ssw0rd123!"
+}
+
+### [1b] 用户注册
+# @name signup
+POST {{baseUrl}}/auth/sign-up
+Content-Type: {{contentType}}
+
+{
+    "email": "ohnohello@example.com",
+    "password": "WoXiHuanLinGuZi"
+}
+
+### [2a] 用户登录
+# @name login
+POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
@@ -21,12 +41,12 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-    "email": "testuser@example.com",
-    "password": "P@ssw0rd123!"
+    "email": "ohnohello@example.com",
+    "password": "WoXiHuanLinGuZi"
 }
 
 ### [3] 访问受保护数据 Access
-GET {{baseUrl}}/api/protected-data
+GET {{baseUrl}}/api/home-data
 Authorization: Bearer {{access_token}}
 
 ### [4] 验证令牌有效性 Access
@@ -41,7 +61,6 @@ Content-Type: {{contentType}}
 {
     "refreshToken": "{{refresh_token}}"
 }
-
 
 ### [6] 使用新令牌访问数据
 GET {{baseUrl}}/api/protected-data
