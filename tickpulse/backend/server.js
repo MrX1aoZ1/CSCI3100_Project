@@ -1,17 +1,45 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const cors = require('cors');
+const session = require('express-session');
+const passport = require('passport');
+const connectDB = require("./config/db");
+const createTaskTable = require('./models/Task');
+const createUserTable = require('./models/User');
 
 // 初始化模块
-const initializeMiddleware = require('./config/middleware');
 const authRoutes = require('./routes/authRoutes');
 const apiRoutes = require('./routes/apiRoutes');
 
 // 全局配置
-initializeMiddleware(app);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use(express.json()); // 解析 JSON 请求体
-app.use(express.urlencoded({ extended: true })); // 解析 URL-encoded 请求体
+app.use(cors({
+  origin: 'http://localhost:3001',
+  // origin: process.env.CLIENT_URL || "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
+app.use(session({
+  secret: process.env.ACCESS_TOKEN_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
+
+// Connect to the Database
+connectDB();
+(async () => {
+    await createTaskTable();
+})();
+(async () => {
+    await createUserTable();
+})();
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // 路由挂载
 app.use('/auth', authRoutes);
@@ -25,7 +53,16 @@ app.get('/api/data', (req, res) => {
   });
 });
 
+// Routes
+const taskRoutes = require("./routes/taskRoutes");
+// app.use("/api/auth", authRoutes);
+// app.use("/api/users", userRoutes);
+app.use("/api/tasks", taskRoutes);
+// app.use("/api/reports", reportRoutes);
+
 // Start Server
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
+// const PORT = process.env.PORT || 5000;
+const PORT = 3000
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

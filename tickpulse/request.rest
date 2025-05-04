@@ -2,27 +2,17 @@
 @baseUrl = http://localhost:3000
 @contentType = application/json
 
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNzQ2MjkwNTA0MTcwIiwiZW1haWwiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsImp0aSI6ImI2ZWFiNDdmLTljZTItNDY5Ny1hMjE0LTIwYTUwOWFmNTNjMSIsImlhdCI6MTc0NjI5MDY0MSwiZXhwIjoxNzQ2MjkxNTQxfQ.GsyjKZPJWyHdBwlyUqhXMTMjuDvuQwiLRXSpp478uAY
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib2hub2hlbGxvQGV4YW1wbGUuY29tIiwianRpIjoiZjhkZWQxN2YtMmYzMy00MjgwLWI2ZTAtZGFlZjI0YmEzODdkIiwiaWF0IjoxNzQ2Mzc4MjkwLCJleHAiOjE3NDYzNzkxOTB9.wz0rEiJsRCLIwOX9TkxxNU-bW7CC5yEs8cs2thL0-B0
 @refresh_token = b1b7020c-579d-4b52-a0a1-09c68695710a
 
-### [1a] 用户注册
-# @name signup
+### [1] 用户注册
+# @name signup 
 POST {{baseUrl}}/auth/sign-up
 Content-Type: {{contentType}}
 
 {
-    "email": "testuser@example.com",
-    "password": "P@ssw0rd123!"
-}
-
-### [1b] 用户注册
-# @name signup
-POST {{baseUrl}}/auth/sign-up
-Content-Type: {{contentType}}
-
-{
-    "email": "ohnohello@example.com",
-    "password": "WoXiHuanLinGuZi"
+    "email": "hayashicoco@gmail.com",
+    "password": "0515hayashi"
 }
 
 ### [2a] 用户登录
@@ -43,6 +33,26 @@ Content-Type: {{contentType}}
 {
     "email": "ohnohello@example.com",
     "password": "WoXiHuanLinGuZi"
+}
+
+### [2c] 用户登录
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "mrxiaozi@gmail.com",
+    "password": "078529hahahahakasumi"
+}
+
+### [2d] 用户登录
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "hayashicoco@gmail.com",
+    "password": "0515hayashi"
 }
 
 ### [3] 访问受保护数据 Access

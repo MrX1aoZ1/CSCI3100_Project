@@ -10,7 +10,7 @@ router.get('/protected-data', verifyToken, (req, res) => {
 	res.json({ secret: 'Protected data' });
 });
 
-router.get('/home-data', checkAuthenticated, (req, res) => {
+router.get('/home-data', verifyToken, (req, res) => {
 	res.json({
 		protectedData: 'Protected data for authenticated users',
 		user: req.user

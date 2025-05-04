@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const { sendResponse } = require('./response');
+connectDB = require('../config/db');
 
 // 统一Token存储
 const tokenStore = {
@@ -112,12 +113,45 @@ function handleLogout(req, res) {
 	  console.error('Logout Error:', e);
 	  sendResponse.error(res, 'Logout Failed', 500);
 	}
+}
+
+async function verifyAndAttachUser(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return sendResponse.error(res, 'No Token Provided', 401);
+
+  try {
+    // 验证令牌有效性
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const meta = tokenStore.accessTokens.get(decoded.jti);
+    if (!meta || !meta.valid || meta.expires < Date.now()) {
+      return sendResponse.error(res, 'Invalid Token', 403);
+    }
+
+    // 从数据库获取用户信息
+    const connection = await connectDB();
+    const [users] = await connection.query('SELECT * FROM Users WHERE id = ?', [decoded.userId]);
+    await connection.end();
+
+    if (users.length === 0) {
+      return sendResponse.error(res, 'User not found', 404);
+    }
+
+    // 挂载用户信息到 req.user
+    const user = users[0];
+    delete user.password;
+    req.user = user;
+
+    next();
+  } catch (error) {
+    sendResponse.error(res, 'Token Authentication Failed', 403);
   }
+}
 
 module.exports = {
   generateAccessToken,
   generateRefreshToken,
   verifyToken,
   handleLogout,
-  tokenStore
+  tokenStore,
+  verifyAndAttachUser
 };
