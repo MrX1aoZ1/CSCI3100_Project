@@ -1,8 +1,8 @@
 @baseUrl = http://localhost:3000
 @contentType = application/json
 
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib2hub2hlbGxvQGV4YW1wbGUuY29tIiwianRpIjoiZTExNDdhNzItYzk5MS00ZWY5LWFlYzMtMjE4MTVhZTc1ODFiIiwiaWF0IjoxNzQ2Mzg1MzYwLCJleHAiOjE3NDYzODYyNjB9.ldvwlnbkwcr1D-gCOezjywY9bf2k6Trby2Fu8yXQR44
-@refresh_token = 23437094-54ff-420a-915d-6bce4393f17a
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib2hub2hlbGxvQGV4YW1wbGUuY29tIiwianRpIjoiMGU0YWMwMjMtZWI2YS00MTUzLWFiNTctZGYwMzVhNTcyN2FjIiwiaWF0IjoxNzQ2Mzg3MzAzLCJleHAiOjE3NDYzODgyMDN9.az-0qZYfNjZ1w1Mvu9YomtiRvKXXyOte2j0zTSolybI
+@refresh_token = 254654ec-8e6d-489c-83d1-fbd983133fee
 
 ### [2a] 用户登录
 # @name login
@@ -44,11 +44,11 @@ Content-Type: application/json
 Authorization: Bearer {{access_token}}
 
 {
-  "task_name": "Testing Project 2",
+  "task_name": "Testing Project 4",
   "content": "Ohnoohohohohohno",
   "status": "pending",
   "deadline": "2023-2-28",
-  "priority": "medium",
+  "priority": "low",
   "category_name": "game"
 }
 
@@ -57,16 +57,16 @@ GET {{baseUrl}}/api/tasks
 Authorization: Bearer {{access_token}}
 
 ### [5] 查看单个任务
-GET {{baseUrl}}/api/tasks/1
+GET {{baseUrl}}/api/tasks/6
 Authorization: Bearer {{access_token}}
 
 ### [6] 更新任务状态
-PUT {{baseUrl}}/api/tasks/5/deadline
+PUT {{baseUrl}}/api/tasks/6/deadline
 Content-Type: application/json
 Authorization: Bearer {{access_token}}
 
 {
-  "deadline": "2023-2-28"
+  "deadline": "2023-3-28"
 }
 
 ### [7] 删除任务
