@@ -186,22 +186,22 @@ export default function TaskModule() {
         <div
           style={{
             position: 'absolute',
-            // Clamp the divider's left position to match the allowed range
             left: Math.max(minTaskListWidth, Math.min(maxTaskListWidth, taskListWidth)) - 4,
             top: 0,
             height: '100%',
             width: 8,
             zIndex: 20,
             cursor: 'col-resize',
-            background: showDivider ? 'rgba(59,130,246,0.5)' : 'transparent',
-            transition: 'background 0.2s',
+            background: showDivider ? 'rgba(59,130,246,0.15)' : 'transparent',
+            borderLeft: showDivider ? '1px solid #3b82f6' : '1px solid transparent',
+            transition: 'background 0.2s, border-color 0.2s',
           }}
           onMouseDown={handleMouseDown}
           onMouseEnter={() => setShowDivider(true)}
           onMouseLeave={() => { if (!resizing.current.active) setShowDivider(false); }}
         />
         {/* Right Column: Task Detail */}
-        <div className="h-full flex-1 overflow-y-auto" style={{ marginLeft: -1 }}>
+        <div className="h-full flex-1 overflow-y-auto">
           <TaskDetail />
         </div>
       </div>
