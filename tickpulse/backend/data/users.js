@@ -1,0 +1,4 @@
+users = [];
+
+module.exports = users;
+
