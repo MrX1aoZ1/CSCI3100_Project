@@ -13,6 +13,7 @@ const getTasks = async (req, res) => {
             'SELECT * FROM tasks WHERE user_id = ?',
             [req.user.id]
         );
+        console.log("getTasks");
         res.status(200).json(tasks);
         await connection.end();
     } catch (error) {
@@ -29,11 +30,54 @@ const getTaskById = async (req, res) => {
         const [tasks] = await connection.query(
             'SELECT * FROM tasks WHERE id = ? AND user_id = ?', 
             [req.params.id, req.user.id]);
-        
+        console.log("getTaskById");
         if (tasks.length === 0) {
             return res.status(404).json({ message: 'Task not found' });
         }
+        
         res.status(200).json(tasks[0]);
+        await connection.end();
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// @desc    Get tasks by category name
+// @route   GET /api/tasks/category/:category_name
+// @access  Private
+const getTasksByCategory = async (req, res) => {
+    try {
+        const connection = await connectDB();
+        const [tasks] = await connection.query(
+            'SELECT * FROM tasks WHERE category_name = ? AND user_id = ?',
+            [req.params.category_name, req.user.id]
+        );
+        console.log("taskbycategory");
+        if (tasks.length === 0) {
+            return res.status(404).json({ message: 'No tasks found for this category' });
+        }
+        res.status(200).json(tasks);
+        await connection.end();
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// @desc    Get all categories
+// @route   GET /api/tasks/category
+// @access  Private
+const getAllCategory = async (req, res) => {
+    try {
+        const connection = await connectDB();   
+        const [categories] = await connection.query(
+            'SELECT DISTINCT category_name FROM category WHERE user_id = ?',
+            [req.user.id]
+        );
+        console.log("taskallcategory");
+        if (categories.length === 0) {  
+            return res.status(404).json({ message: 'No categories found' });
+        }
+        res.status(200).json(categories);
         await connection.end();
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -55,8 +99,28 @@ const createTask = async (req, res) => {
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [task_name, content, status, deadline, priority, user_id, category_name]
         );
-       
+        console.log("task created");
         res.status(201).json({ id: result.insertId, task_name, content, status, deadline, priority, user_id, category_name });
+        await connection.end();
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// @desc    Create a new category
+// @route   POST /api/tasks/category
+// @access  Private
+const createCategory = async (req, res) => {
+    const { category_name } = req.body;
+    const user_id = req.user.id;
+    try {
+        const connection = await connectDB();
+        const [result] = await connection.query(
+            'INSERT INTO category (category_name, user_id) VALUES (?, ?)',
+            [category_name, user_id]
+        );
+        console.log("category created");
+        res.status(201).json({ id: result.insertId, category_name, user_id });
         await connection.end();
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -80,11 +144,11 @@ const updateTask = async (req, res) => {
              AND user_id = ?`,
             [task_name, content, status, deadline, priority, user_id, category_name, req.params.id, user_id]
         );
-
+        console.log("update task");
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Task not found' });
         }
-
+        
         res.status(200).json({ id: req.params.id, task_name, content, status, deadline, priority, user_id, category_name });
         await connection.end();
     } catch (error) {
@@ -103,11 +167,11 @@ const deleteTask = async (req, res) => {
         const [result] = await connection.query(
             'DELETE FROM tasks WHERE id = ? AND user_id = ?', 
             [req.params.id, user_id]);
-
+        console.log("task deleted");
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Task not found or unauthorized' });
         }
-
+        
         res.status(200).json({ message: 'Task deleted successfully' });
         await connection.end();
     } catch (error) {
@@ -125,11 +189,11 @@ const updateTaskStatus = async (req, res) => {
     try {
         const connection = await connectDB();
         const [result] = await connection.query('UPDATE tasks SET status = ? WHERE id = ? AND user_id = ?', [status, req.params.id, user_id]);
-
+        console.log("task status updated");
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Task not found' });
         }
-
+        
         res.status(200).json({ id: req.params.id, status });
         await connection.end();
     } catch (error) {
@@ -150,7 +214,7 @@ const updateTaskPriority = async (req, res) => {
             'UPDATE tasks SET priority = ? WHERE id = ? AND user_id = ? ', 
             [priority, req.params.id, user_id]
         );
-
+        console.log("task priority updated");
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Task not found' });
         }
@@ -175,7 +239,7 @@ const updateTaskDeadline = async (req, res) => {
             'UPDATE tasks SET deadline = ? WHERE id = ? AND user_id = ? ', 
             [deadline, req.params.id, user_id]
         );
-
+        console.log("task deadline updated");
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Task not found' });
         }
@@ -200,7 +264,7 @@ const updateTaskCategory = async (req, res) => {
             'UPDATE tasks SET category_name = ? WHERE id = ? AND user_id = ? ', 
             [category_name, req.params.id, user_id]
         );
-
+        console.log("task category updated");
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Task not found' });
         }
@@ -225,7 +289,7 @@ const updateTaskContent = async (req, res) => {
             'UPDATE tasks SET content = ? WHERE id = ? AND user_id = ? ', 
             [content, req.params.id, user_id]
         );
-
+        console.log("task content updated");
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Task not found' });
         }
@@ -248,4 +312,7 @@ module.exports = {
     updateTaskDeadline,
     updateTaskCategory,
     updateTaskContent,
+    getTasksByCategory,
+    createCategory,
+    getAllCategory
 };

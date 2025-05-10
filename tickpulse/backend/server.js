@@ -7,6 +7,8 @@ const passport = require('passport');
 const connectDB = require("./config/db");
 const createTaskTable = require('./models/Task');
 const createUserTable = require('./models/User');
+const createTimerTable = require('./models/Timer');
+const createCategoryTable = require('./models/Category');
 
 // 初始化模块
 const authRoutes = require('./routes/authRoutes');
@@ -37,6 +39,12 @@ connectDB();
 (async () => {
     await createUserTable();
 })();
+(async () => {
+    await createTimerTable();
+})();
+(async () => {
+    await createCategoryTable();
+})();
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -55,9 +63,11 @@ app.get('/api/data', (req, res) => {
 
 // Routes
 const taskRoutes = require("./routes/taskRoutes");
+const timerRoutes = require("./routes/timerRoutes");
 // app.use("/api/auth", authRoutes);
 // app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/timers", timerRoutes);
 // app.use("/api/reports", reportRoutes);
 
 // Start Server

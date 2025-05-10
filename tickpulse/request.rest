@@ -2,8 +2,7 @@
 @baseUrl = http://localhost:3000
 @contentType = application/json
 
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib2hub2hlbGxvQGV4YW1wbGUuY29tIiwianRpIjoiZjhkZWQxN2YtMmYzMy00MjgwLWI2ZTAtZGFlZjI0YmEzODdkIiwiaWF0IjoxNzQ2Mzc4MjkwLCJleHAiOjE3NDYzNzkxOTB9.wz0rEiJsRCLIwOX9TkxxNU-bW7CC5yEs8cs2thL0-B0
-@refresh_token = b1b7020c-579d-4b52-a0a1-09c68695710a
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoidGVzdHVzZXJAZXhhbXBsZS5jb20iLCJqdGkiOiIyMThhMjVhYi1iZTRkLTRlYjgtOWIxZC1kOTRlOGNhYzEyOWQiLCJpYXQiOjE3NDY4OTcwMDIsImV4cCI6MTc0Njg5NzkwMn0.CFVPxwbMiLduGSjI0SscFRg93po4XalE601w1myCczo
 
 ### [1] 用户注册
 # @name signup 
@@ -11,8 +10,8 @@ POST {{baseUrl}}/auth/sign-up
 Content-Type: {{contentType}}
 
 {
-    "email": "hayashicoco@gmail.com",
-    "password": "0515hayashi"
+    "email": "testuser@example.com",
+    "password": "P@ssw0rd123!"
 }
 
 ### [2a] 用户登录
@@ -88,3 +87,134 @@ Content-Type: {{contentType}}
 ### [8] 失效令牌测试（应在注销后返回401）
 GET {{baseUrl}}/api/protected-data
 Authorization: Bearer {{access_token}}
+
+### [1] Get All Tasks
+GET {{baseUrl}}/api/tasks
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+###
+
+### [2] Get Task by ID
+GET {{baseUrl}}/api/tasks/4
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+###
+
+### [3] Create a New Task
+POST {{baseUrl}}/api/tasks
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "task_name": "Neeeew Task",
+  "content": "This is a new task.",
+  "status": "pending",
+  "deadline": "2025-05-15",
+  "priority": "high",
+  "category_name": "Work"
+}
+
+###
+
+### [4] Update Task by ID
+PUT {{baseUrl}}/api/tasks/1
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "task_name": "Updated Task",
+  "content": "This task has been updated.",
+  "status": "completed",
+  "deadline": "2025-05-20",
+  "priority": "medium",
+  "category_name": "Personal"
+}
+
+###
+
+### [5] Delete Task by ID
+DELETE {{baseUrl}}/api/tasks/1
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+###
+
+### [6] Get Tasks by Category
+GET {{baseUrl}}/api/tasks/category/Work
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+###
+
+### [7] Get All Categories
+GET {{baseUrl}}/api/tasks/category
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+###
+
+### [8] Create a New Category
+POST {{baseUrl}}/api/tasks/category
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "category_name": "New11"
+}
+
+###
+
+### [9] Update Task Status
+PUT {{baseUrl}}/api/tasks/1/status
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "status": "in-progress"
+}
+
+###
+
+### [10] Update Task Priority
+PUT {{baseUrl}}/api/tasks/1/priority
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "priority": "low"
+}
+
+###
+
+### [11] Update Task Deadline
+PUT {{baseUrl}}/api/tasks/1/deadline
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "deadline": "2025-06-01"
+}
+
+###
+
+### [12] Update Task Category
+PUT {{baseUrl}}/api/tasks/1/category
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "category_name": "Updated Category"
+}
+
+###
+
+### [13] Update Task Content
+PUT {{baseUrl}}/api/tasks/1/content
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+  "content": "Updated task content."
+}
