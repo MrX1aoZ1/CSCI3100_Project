@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useTasks } from '@/context/TaskContext';
 import { useTheme } from '@/context/ThemeContext';
-import { SunIcon, MoonIcon, CalendarDaysIcon, CheckCircleIcon, InboxIcon } from '@heroicons/react/24/outline';
+import { SunIcon, MoonIcon, CalendarDaysIcon, CheckCircleIcon, InboxIcon, ClockIcon } from '@heroicons/react/24/outline';
 import ProjectList from './ProjectList';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 
 // Define predefined filters, adding "All Tasks"
 const predefinedFilters = [
@@ -16,12 +18,19 @@ const predefinedFilters = [
 export default function NavigationBar() {
   const { theme, toggleTheme } = useTheme();
   const { dispatch, selectedView, activeFilter } = useTasks();
+  const pathname = usePathname();
+  const router = useRouter();
 
   // Function to handle filter selection
   const handleFilterSelect = (filter) => {
     console.log(`Setting filter to: ${filter}`);
     dispatch({ type: 'SET_VIEW', payload: 'filter' });
     dispatch({ type: 'SET_ACTIVE_FILTER', payload: filter });
+    
+    // Add this line to navigate back to home page when a filter is selected
+    if (pathname !== '/') {
+      router.push('/');
+    }
   };
 
   return (
@@ -52,6 +61,34 @@ export default function NavigationBar() {
                 </button>
               </li>
             ))}
+          </ul>
+        </div>
+
+        {/* Timer Link */}
+        <div className="p-4 border-t border-gray-200 dark:border-zinc-700">
+          <h2 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">工具</h2>
+          <ul>
+            <li>
+              <Link href="/timer">
+                <div 
+                  className={`w-full flex items-center px-2 py-2 text-sm rounded-md mb-1
+                    ${pathname === '/timer'
+                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-800'
+                    }`}
+                  onClick={() => {
+                    // Reset filter selection when navigating to timer
+                    if (selectedView === 'filter') {
+                      dispatch({ type: 'SET_VIEW', payload: 'project' });
+                      dispatch({ type: 'SET_ACTIVE_FILTER', payload: null });
+                    }
+                  }}
+                >
+                  <ClockIcon className="h-5 w-5 mr-2" />
+                  专注计时器
+                </div>
+              </Link>
+            </li>
           </ul>
         </div>
 
