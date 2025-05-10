@@ -1,10 +1,14 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { TaskProvider } from '@/context/TaskContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { ToastProvider } from '@/context/ToastContext';
 import NavigationBar from '@/components/NavigationBar';
 import TaskModule from '@/components/TaskModule';
+import withAuth from '@/components/WithAuth';
+
 import "@/styles/globals.css";
 
 export default function Home() {

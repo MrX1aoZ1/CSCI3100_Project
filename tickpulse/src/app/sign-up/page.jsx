@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { FiMail, FiLock } from 'react-icons/fi';
 import React, { useCallback, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { validate as isEmailValid } from 'email-validator';
 
 export default function RegisterPage() {
   const router = useRouter();

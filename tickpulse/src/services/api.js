@@ -54,15 +54,56 @@ async function fetchWithAuth(endpoint, options = {}) {
 // Task-related API calls with error handling
 export const taskApi = {
   // Get all tasks
-  getTasks: async () => {
-    try {
-      return await fetchWithAuth('/tasks');
-    } catch (error) {
-      logError('getTasks', error);
-      throw error;
-    }
-  },
+  getTasks: async () => fetchWithAuth('/tasks'),
   
+  getTaskById: async (id) => fetchWithAuth(`/tasks/${id}`),
+
+  createTask: async (taskData) => 
+    fetchWithAuth('/tasks', {
+      method: 'POST',
+      body: JSON.stringify(taskData)
+    }),
+
+  updateTask: async (id, updates) =>
+    fetchWithAuth(`/tasks/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates)
+    }),
+
+  deleteTask: async (id) =>
+    fetchWithAuth(`/tasks/${id}`, {
+      method: 'DELETE'
+    }),
+
+  updateTaskStatus: async (id, status) =>
+    fetchWithAuth(`/tasks/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status })
+    }),
+
+  updateTaskPriority: async (id, priority) =>
+    fetchWithAuth(`/tasks/${id}/priority`, {
+      method: 'PUT',
+      body: JSON.stringify({ priority })
+    }),
+  
+  updateTaskDeadline: async (id, deadline) =>
+    fetchWithAuth(`/tasks/${id}/deadline`, {
+      method: 'PUT',
+      body: JSON.stringify({ deadline })
+    }),
+
+  updateTaskCategory: async (id, category) =>
+    fetchWithAuth(`/tasks/${id}/category`, {
+      method: 'PUT',
+      body: JSON.stringify({ category })
+    }),
+
+  updateTaskDeadline: async (id, content) =>
+    fetchWithAuth(`/tasks/${id}/content`, {
+      method: 'PUT',
+      body: JSON.stringify({ content })
+    }),
   // Other task API methods with similar error handling...
 };
 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTasks } from '@/context/TaskContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useRouter } from 'next/navigation';
 import { SunIcon, MoonIcon, CalendarDaysIcon, CheckCircleIcon, InboxIcon } from '@heroicons/react/24/outline';
 import ProjectList from './ProjectList';
 
@@ -17,11 +18,18 @@ export default function NavigationBar() {
   const { theme, toggleTheme } = useTheme();
   const { dispatch, selectedView, activeFilter } = useTasks();
 
+  const router = useRouter();
+
   // Function to handle filter selection
   const handleFilterSelect = (filter) => {
     console.log(`Setting filter to: ${filter}`);
     dispatch({ type: 'SET_VIEW', payload: 'filter' });
     dispatch({ type: 'SET_ACTIVE_FILTER', payload: filter });
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    router.push('/login');
   };
 
   return (

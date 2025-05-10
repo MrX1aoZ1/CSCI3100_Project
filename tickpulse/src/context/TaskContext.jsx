@@ -258,7 +258,6 @@ export const TaskProvider = ({ children }) => {
 
   // Helper function for today's date string
   // Remove the duplicate placeholder declaration below
-  // const getTodayDateString = () => { /* ... */ }; // <-- 删除这一行
 
    const getTodayDateString = () => {
      const today = new Date();

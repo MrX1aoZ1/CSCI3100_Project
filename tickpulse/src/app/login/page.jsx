@@ -9,8 +9,8 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const [email, setEmail] = useState('w@w');
-  const [password, setPassword] = useState('078529dj');
+  const [email, setEmail] = useState('hayashicoco@gmail.com');
+  const [password, setPassword] = useState('0515hayashi');
 
   const [emailError, setEmailError] = useState(undefined);
   const [passwordError, setPasswordError] = useState(undefined);
@@ -91,7 +91,7 @@ export default function LoginPage() {
         }
 
         localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
+        // localStorage.setItem('refreshToken', data.refreshToken);
         router.push('/');
 
       } catch (error) {
