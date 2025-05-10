@@ -64,6 +64,12 @@ export default function NavigationBar() {
 
       {/* Bottom Actions */}
       <div className="p-4 border-t border-gray-200 dark:border-zinc-700">
+        <button 
+          onClick={handleLogout}
+          className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-600 rounded"
+        >
+          登出
+        </button>
         <button
           onClick={toggleTheme}
           className="w-full flex items-center px-2 py-2 text-sm rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-800"

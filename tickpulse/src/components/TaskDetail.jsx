@@ -172,8 +172,6 @@ export default function TaskDetails() {
           ))}
         </select>
       </div>
-
-      {/* Add other details as needed */}
     </div>
   );
 }

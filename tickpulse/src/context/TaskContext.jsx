@@ -224,7 +224,6 @@ const taskReducer = (state, action) => {
          activeFilter: action.payload.view === 'filter' ? action.payload.filter : null,
          selectedTaskId: null // Deselect task when changing view
        };
-
     default:
       return state;
   }

@@ -1,0 +1,90 @@
+### 环境变量定义
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib2hub2hlbGxvQGV4YW1wbGUuY29tIiwianRpIjoiZjhkZWQxN2YtMmYzMy00MjgwLWI2ZTAtZGFlZjI0YmEzODdkIiwiaWF0IjoxNzQ2Mzc4MjkwLCJleHAiOjE3NDYzNzkxOTB9.wz0rEiJsRCLIwOX9TkxxNU-bW7CC5yEs8cs2thL0-B0
+@refresh_token = b1b7020c-579d-4b52-a0a1-09c68695710a
+
+### [1] 用户注册
+# @name signup 
+POST {{baseUrl}}/auth/sign-up
+Content-Type: {{contentType}}
+
+{
+    "email": "hayashicoco@gmail.com",
+    "password": "0515hayashi"
+}
+
+### [2a] 用户登录
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "testuser@example.com",
+    "password": "P@ssw0rd123!"
+}
+
+### [2b] 用户登录
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "ohnohello@example.com",
+    "password": "WoXiHuanLinGuZi"
+}
+
+### [2c] 用户登录
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "mrxiaozi@gmail.com",
+    "password": "078529hahahahakasumi"
+}
+
+### [2d] 用户登录
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "hayashicoco@gmail.com",
+    "password": "0515hayashi"
+}
+
+### [3] 访问受保护数据 Access
+GET {{baseUrl}}/api/home-data
+Authorization: Bearer {{access_token}}
+
+### [4] 验证令牌有效性 Access
+GET {{baseUrl}}/api/verify-token
+Authorization: Bearer {{access_token}}
+
+### [5] 刷新访问令牌 Refresh
+# @name refresh
+POST {{baseUrl}}/api/refresh-token
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "{{refresh_token}}"
+}
+
+### [6] 使用新令牌访问数据
+GET {{baseUrl}}/api/protected-data
+Authorization: Bearer {{access_token}}
+
+### [7] 注销操作
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{access_token}}
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "{{refresh_token}}"
+}
+
+### [8] 失效令牌测试（应在注销后返回401）
+GET {{baseUrl}}/api/protected-data
+Authorization: Bearer {{access_token}}

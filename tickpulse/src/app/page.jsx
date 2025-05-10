@@ -8,6 +8,18 @@ import TaskModule from '@/components/TaskModule';
 import "@/styles/globals.css";
 
 export default function Home() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        router.push('/login');
+      }
+    };
+    checkAuth();
+  }, [router]);
+  
   return (
     <ThemeProvider>
       <ToastProvider>
