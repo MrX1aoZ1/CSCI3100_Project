@@ -1,13 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { TaskProvider } from '@/context/TaskContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { ToastProvider } from '@/context/ToastContext';
 import NavigationBar from '@/components/NavigationBar';
 import TaskModule from '@/components/TaskModule';
-import withAuth from '@/components/WithAuth';
-
 import "@/styles/globals.css";
 
 export default function Home() {
@@ -22,16 +19,17 @@ export default function Home() {
     };
     checkAuth();
   }, [router]);
-
+  
   return (
     <ThemeProvider>
-      <TaskProvider>
-        <div className="flex h-screen bg-white dark:bg-stone-800">
-          <NavigationBar />
-          <TaskModule />
-        </div>
-      </TaskProvider>
+      <ToastProvider>
+        <TaskProvider>
+          <div className="flex h-screen bg-white dark:bg-zinc-800">
+            <NavigationBar />
+            <TaskModule />
+          </div>
+        </TaskProvider>
+      </ToastProvider>
     </ThemeProvider>
   );
 }
-

@@ -1,63 +1,183 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useTasks } from '@/context/TaskContext';
-import "@/styles/globals.css";
+import { CheckCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon as CheckCircleIconSolid } from '@heroicons/react/24/solid';
 
 export default function TaskList() {
-  const { tasks, dispatch, selectedTaskId } = useTasks(); // 获取selectedTaskId
-  const [newTask, setNewTask] = useState('');
+  const {
+    tasks,
+    projects,
+    selectedProjectId,
+    selectedTaskId,
+    selectedView,
+    activeFilter,
+    dispatch,
+    getTodayDateString
+  } = useTasks();
 
-  const handleAddTask = (e) => {
-    if (e.key === 'Enter' && newTask.trim()) {
-      dispatch({ type: 'ADD_TASK', payload: newTask.trim() });
-      setNewTask('');
+  const filteredTasks = tasks.filter(task => {
+    let match = true;
+
+    if (selectedView === 'project') {
+      // Always compare as strings and default to 'inbox'
+      const taskProjectId = String(task.projectId || 'inbox');
+      const selectedProjId = String(selectedProjectId || 'inbox');
+      match = taskProjectId === selectedProjId;
+    } else if (selectedView === 'filter') {
+      const today = getTodayDateString();
+      switch (activeFilter) {
+        case 'all':
+          match = true;
+          break;
+        case 'today':
+          match = task.deadline === today && !task.completed;
+          break;
+        case 'completed':
+          match = task.completed === true;
+          break;
+        default:
+          match = false;
+      }
+    } else {
+      match = false;
+    }
+
+    return match;
+  });
+
+  // Always call hooks at the top level, not inside any condition
+  useEffect(() => {
+    if (filteredTasks.length === 0 && selectedTaskId) {
+      dispatch({ type: 'SELECT_TASK', payload: null });
+    }
+  }, [filteredTasks.length, selectedTaskId, dispatch]);
+
+  const getPriorityClasses = (priority) => {
+    switch (priority) {
+      case 'high':
+        return 'border-l-red-500 dark:border-l-red-400';
+      case 'medium':
+        return 'border-l-yellow-500 dark:border-l-yellow-400';
+      case 'low':
+        return 'border-l-blue-500 dark:border-l-blue-400';
+      default:
+        return 'border-l-transparent';
     }
   };
 
+  const handleToggleTask = (taskId, e) => {
+    e?.stopPropagation(); // Make stopPropagation optional
+    console.log('Toggling task:', taskId);
+    dispatch({ type: 'TOGGLE_TASK', payload: taskId });
+  };
+
+  const handleDeleteTask = (taskId, e) => {
+    e?.stopPropagation(); // Make stopPropagation optional
+    console.log('Deleting task:', taskId);
+    dispatch({ type: 'DELETE_TASK', payload: taskId });
+  };
+
+  const handleSelectTask = (taskId) => {
+    console.log('Selecting task:', taskId);
+    dispatch({ type: 'SELECT_TASK', payload: taskId });
+  };
+
+  // Remove the handleMoveTask function since we're removing that functionality
+  
+  const handleDragStart = (e, taskId) => {
+    console.log('Drag start:', taskId);
+    e.dataTransfer.setData('text/plain', taskId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.currentTarget.classList.add('opacity-50');
+  };
+
+  const handleDragEnd = (e) => {
+     e.currentTarget.classList.remove('opacity-50');
+  };
+
+  // Choose one return structure - using the second one with the cleaner UI
   return (
-    <div className="p-4 border-l">
-      <h2 className="text-lg font-semibold mb-4 text-black dark:text-gray-100">所有任务</h2>
-      <input
-        type="text"
-        placeholder="添加新任务..."
-        className="w-full p-2 border rounded mb-4 text-black dark:text-gray-100"
-        value={newTask}
-        onChange={(e) => setNewTask(e.target.value)}
-        onKeyDown={handleAddTask}
-      />
-      <div className="space-y-2">
-        {tasks.map(task => (
-          <div
-            key={task.id}
-            className={`flex items-center justify-between p-2 text-black dark:text-gray-100 rounded transition-colors
-            ${task.id === selectedTaskId
-                ? 'bg-gray-200 dark:bg-zinc-500'
-                : 'hover:bg-gray-100 dark:hover:bg-zinc-600'}`}
-            onClick={() => dispatch({ type: 'SELECT_TASK', payload: task.id })}>
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => dispatch({ type: 'TOGGLE_TASK', payload: task.id })}
-                className="h-4 w-4"
-                onClick={(e) => e.stopPropagation()}
-              />
-              <span className={`${task.completed ? 'line-through text-gray-400' : ''} truncate max-w-[700px]`}>
-                {task.title}
-              </span>
-            </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                dispatch({ type: 'DELETE_TASK', payload: task.id });
-              }}
-              className="text-red-500 hover:text-red-700"
-            >
-              ×
-            </button>
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-600 scrollbar-track-transparent">
+        {filteredTasks.length === 0 ? (
+          <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+            No tasks found
           </div>
-        ))}
+        ) : (
+          <ul className="divide-y divide-gray-200 dark:divide-zinc-700">
+            {filteredTasks.map(task => (
+              <li 
+                key={task.id}
+                className={`relative ${selectedTaskId === task.id ? 'task-item-selected' : ''} 
+                  ${task.priority === 'high' ? 'border-l-4 border-l-red-500 dark:border-l-red-400' : ''}
+                  ${task.priority === 'medium' ? 'border-l-4 border-l-yellow-500 dark:border-l-yellow-400' : ''}
+                  ${task.priority === 'low' ? 'border-l-4 border-l-blue-500 dark:border-l-blue-400' : ''}
+                  ${!task.priority || task.priority === 'none' ? 'border-l-4 border-l-transparent' : ''}
+                `}
+              >
+                <div className={`group flex items-center p-3 hover:bg-gray-50 dark:hover:bg-zinc-700/50
+                  ${task.priority === 'high' ? 'bg-red-50 dark:bg-red-900/10' : ''}
+                  ${task.priority === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/10' : ''}
+                  ${task.priority === 'low' ? 'bg-blue-50 dark:bg-blue-900/10' : ''}
+                `}>
+                  
+                  {/* Checkbox */}
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={(e) => handleToggleTask(task.id, e)}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-700"
+                  />
+                  
+                  {/* Task title */}
+                  <div 
+                    className={`ml-3 flex-1 cursor-pointer ${task.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}
+                    onClick={() => handleSelectTask(task.id)}
+                  >
+                    <span className="block text-sm font-medium">{task.title}</span>
+                    
+                    {/* Task metadata (deadline, priority, etc) */}
+                    <div className="mt-1 flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                      {task.deadline && (
+                        <span>
+                          {new Date(task.deadline).toLocaleDateString()}
+                        </span>
+                      )}
+                      {task.priority && task.priority !== 'none' && (
+                        <span className={`
+                          px-2 py-0.5 rounded-full text-xs font-medium
+                          ${task.priority === 'high' ? 'bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-100' : ''}
+                          ${task.priority === 'medium' ? 'bg-yellow-200 text-yellow-900 dark:bg-yellow-800 dark:text-yellow-100' : ''}
+                          ${task.priority === 'low' ? 'bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100' : ''}
+                        `}>
+                          {task.priority}
+                        </span>
+                      )}
+                      {task.projectId && (
+                        <span className="bg-gray-100 dark:bg-zinc-700 px-1.5 py-0.5 rounded text-xs">
+                          {projects.find(p => p.id === task.projectId)?.name || 'Unknown'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Delete button - visible on hover */}
+                  <button
+                    onClick={(e) => handleDeleteTask(task.id, e)}
+                    className="opacity-0 group-hover:opacity-100 ml-2 text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
+                    title="Delete task"
+                  >
+                    <TrashIcon className="h-5 w-5" />
+                  </button>
+                  
+                  {/* "Move to project" dropdown has been removed */}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
