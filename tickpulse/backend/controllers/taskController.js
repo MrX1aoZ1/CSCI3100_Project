@@ -45,8 +45,10 @@ const getTaskById = async (req, res) => {
 // @access  Private
 const createTask = async (req, res) => {
     const { task_name, content, status, deadline, priority, category_name } = req.body;
+    console.log('Creating task with data:', req.body); // Add this line for debugging
 
     const user_id = req.user.id;
+    console.log('User ID:', user_id); // Add this line for debugging
 
     try {
         const connection = await connectDB();
@@ -56,9 +58,11 @@ const createTask = async (req, res) => {
             [task_name, content, status, deadline, priority, user_id, category_name]
         );
        
+        console.log('Task created with ID:', result.insertId); // Add this line for debugging
         res.status(201).json({ id: result.insertId, task_name, content, status, deadline, priority, user_id, category_name });
         await connection.end();
     } catch (error) {
+        console.error('Error creating task:', error); // Enhance error logging
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };

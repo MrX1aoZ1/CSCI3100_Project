@@ -4,29 +4,32 @@ import { useState } from 'react';
 import TaskList from './TaskList';
 import TaskDetail from './TaskDetail';
 import { useTasks } from '@/context/TaskContext';
+import { taskApi } from '@/context/TaskContext'; // Add this import
+import { useToast } from '@/context/ToastContext'; // Add this import
 import { PlusIcon } from '@heroicons/react/24/outline';
 import ErrorBoundary from './ErrorBoundary';
 import { useRef } from 'react';
 
-// Update the priorities array to include 'none'
+// 更新优先级数组，包括'none'
 const priorities = [
-    { value: 'none', label: 'None' },
-    { value: 'low', label: 'Low' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'high', label: 'High' },
+    { value: 'none', label: '无' },
+    { value: 'low', label: '低' },
+    { value: 'medium', label: '中' },
+    { value: 'high', label: '高' },
 ];
 
 export default function TaskModule() {
-  const { selectedTaskId, dispatch, projects, selectedProjectId } = useTasks();
+  const { selectedTaskId, dispatch, categories, selectedCategoryId } = useTasks();
+  const { showSuccess, showError } = useToast(); // Add this line
 
-  // --- Add state for column widths ---
+  // --- 添加列宽状态 ---
   const minTaskListWidth = 180;
   const maxTaskListWidth = 600;
-  const [taskListWidth, setTaskListWidth] = useState(340); // px, initial task list width
+  const [taskListWidth, setTaskListWidth] = useState(340); // px, 初始任务列表宽度
   const resizing = useRef({ active: false, startX: 0, startTaskList: 0 });
   const [showDivider, setShowDivider] = useState(false);
 
-  // --- Mouse event handlers for resizing ---
+  // --- 鼠标事件处理器用于调整大小 ---
   const handleMouseDown = (e) => {
     resizing.current = {
       active: true,
@@ -36,13 +39,13 @@ export default function TaskModule() {
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
     document.body.style.cursor = 'col-resize';
-    setShowDivider(true); // Keep divider visible while dragging
+    setShowDivider(true); // 拖动时保持分隔线可见
   };
 
   const handleMouseMove = (e) => {
     if (!resizing.current.active) return;
     const dx = e.clientX - resizing.current.startX;
-    // Clamp the width
+    // 限制宽度
     const newWidth = Math.max(minTaskListWidth, Math.min(maxTaskListWidth, resizing.current.startTaskList + dx));
     setTaskListWidth(newWidth);
   };
@@ -52,21 +55,20 @@ export default function TaskModule() {
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
     document.body.style.cursor = '';
-    setShowDivider(false); // Hide divider after dragging
+    setShowDivider(false); // 拖动后隐藏分隔线
   };
 
-  // Remove all state and handlers related to the old input bar
-  // Remove: newTaskTitle, setNewTaskTitle, newTaskDeadline, setNewTaskDeadline, newTaskPriority, setNewTaskPriority, newTaskProjectId, setNewTaskProjectId, handleAddTask, handleAddTaskKeyDown
-
-  // Keep only modal-related state and handlers
+  // 保留模态相关状态和处理程序
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
     title: '',
     content: '',
     deadline: '',
     priority: 'none',
-    projectId: selectedProjectId || 'inbox',
+    categoryName: selectedCategoryId || 'inbox', // This will be mapped to category_name in API
   });
+
+  // Remove editForm and its handlers if not used for modal
 
   const handleOpenModal = () => {
     setForm({
@@ -74,7 +76,7 @@ export default function TaskModule() {
       content: '',
       deadline: '',
       priority: 'none',
-      projectId: selectedProjectId || 'inbox',
+      categoryName: selectedCategoryId || 'inbox',
     });
     setShowModal(true);
   };
@@ -85,18 +87,47 @@ export default function TaskModule() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim()) return;
-    dispatch({ type: 'ADD_TASK', payload: form });
-    setShowModal(false);
+    
+    try {
+      // First create the task in the backend
+      const response = await taskApi.createTask({
+        title: form.title,
+        content: form.content,
+        deadline: form.deadline,
+        priority: form.priority,
+        categoryName: form.categoryName,
+        status: 'pending'
+      });
+      
+      // Then update the local state with the response from the backend
+      dispatch({
+        type: 'ADD_TASK',
+        payload: {
+          id: response.id,
+          task_name: response.task_name,
+          content: response.content,
+          deadline: response.deadline,
+          priority: response.priority,
+          category_name: response.category_name,
+          status: response.status,
+          createdAt: new Date().toISOString()
+        }
+      });
+      
+      setShowModal(false);
+      showSuccess('Task created successfully');
+    } catch (error) {
+      console.error('Failed to create task:', error);
+      showError('Failed to create task');
+    }
   };
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
-      {/* Remove the old Add Task Bar here */}
-
-      {/* Floating + Button */}
+      {/* 浮动 + 按钮 */}
       <button
         className="fixed bottom-8 right-8 z-50 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg text-3xl"
         onClick={handleOpenModal}
@@ -107,8 +138,7 @@ export default function TaskModule() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center
-                        bg-black/10 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-sm">
           <div className="bg-white dark:bg-zinc-800 rounded-lg p-6 w-full max-w-md shadow-lg relative">
             <button
               className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-xl"
@@ -117,13 +147,13 @@ export default function TaskModule() {
             >
               ×
             </button>
-            <h2 className="text-lg font-semibold mb-4">Add New Task</h2>
+            <h2 className="text-lg font-semibold mb-4">添加新任务</h2>
             <form onSubmit={handleSubmit} className="space-y-3">
               <input
                 name="title"
                 value={form.title}
                 onChange={handleChange}
-                placeholder="Title"
+                placeholder="标题"
                 className="w-full border rounded p-2"
                 required
               />
@@ -131,7 +161,7 @@ export default function TaskModule() {
                 name="content"
                 value={form.content}
                 onChange={handleChange}
-                placeholder="Details"
+                placeholder="详情"
                 className="w-full border rounded p-2"
               />
               <input
@@ -147,26 +177,26 @@ export default function TaskModule() {
                 onChange={handleChange}
                 className="w-full border rounded p-2"
               >
-                <option value="none">No Priority</option>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+                <option value="none">无优先级</option>
+                <option value="low">低</option>
+                <option value="medium">中</option>
+                <option value="high">高</option>
               </select>
               <select
-                name="projectId"
-                value={form.projectId}
+                name="categoryName"
+                value={form.categoryName}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
               >
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
               <button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded p-2 font-semibold"
               >
-                Add Task
+                添加任务
               </button>
             </form>
           </div>
