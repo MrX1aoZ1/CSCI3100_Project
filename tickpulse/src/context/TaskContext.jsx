@@ -1,21 +1,101 @@
 'use client';
 
 import { createContext, useContext, useReducer, useEffect, useState } from 'react';
-import { taskApi, projectApi } from '@/services/api';
 import { useToast } from './ToastContext';
-
-// Import useState along with other hooks
-
 import { v4 as uuidv4 } from 'uuid';
 
+// API base URL - change this to your backend URL
+const API_BASE_URL = 'http://localhost:3000';
+
+// Add the fetchWithAuth function definition
+async function fetchWithAuth(endpoint, options = {}) {
+  const token = localStorage.getItem('accessToken');
+  
+  if (!token) {
+    throw new Error('No authentication token found. Please log in.');
+  }
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+    ...options.headers,
+  };
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+    
+    if (response.status === 403) {
+      // Clear invalid token
+      localStorage.removeItem('accessToken');
+      throw new Error('Authentication failed. Please log in again.');
+    }
+    
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}: ${await response.text()}`);
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error('API request failed:', error);
+    throw error;
+  }
+}
+
+export const taskApi = {
+  getTasks: async () => fetchWithAuth('/api/tasks'),
+  getTaskById: async (id) => fetchWithAuth(`/api/tasks/${id}`),
+  createTask: async (taskData) =>
+    fetchWithAuth('/api/tasks', {
+      method: 'POST',
+      body: JSON.stringify({
+        task_name: taskData.title,
+        content: taskData.content,
+        status: taskData.status || 'pending',
+        deadline: taskData.deadline,
+        priority: taskData.priority || 'low', // Changed from 'none' to 'low' to match ENUM values
+        category_name: taskData.categoryName
+      }),
+    }),
+  deleteTask: async (id) => {
+    try {
+      const response = await fetchWithAuth(`/api/tasks/${id}`, {
+        method: 'DELETE'
+      });
+      
+      return response;
+    } catch (error) {
+      console.error('Delete task error:', error);
+      throw error;
+    }
+  },
+  updateTaskStatus: async (id, status) =>
+    fetchWithAuth(`/api/tasks/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status })
+    }),
+  updateTaskPriority: async (id, priority) =>
+    fetchWithAuth(`/api/tasks/${id}/priority`, {
+      method: 'PUT',
+      body: JSON.stringify({ priority })
+    }),
+  updateTaskCategory: async (id, category_name) =>
+    fetchWithAuth(`/api/tasks/${id}/category`, {
+      method: 'PUT',
+      body: JSON.stringify({ category_name })
+    })
+};
+
 // --- Initial State ---
-// Define the default structure of your state
+// Updated to match database schema
 const initialState = {
   tasks: [],
-  projects: [{ id: 'inbox', name: 'Inbox' }],
-  selectedProjectId: 'inbox', // Default selected project
+  categories: [{ id: 'inbox', name: 'Inbox' }], // Changed from projects to categories
+  selectedCategoryId: 'inbox', // Default selected category
   selectedTaskId: null,
-  selectedView: 'project', // Default view type ('project' or 'filter')
+  selectedView: 'category', // Changed from 'project' to 'category'
   activeFilter: null, // Default active filter ('all', 'today', 'completed')
 };
 
@@ -28,8 +108,8 @@ const saveState = (state) => {
     if (typeof window !== 'undefined') {
       const stateToSave = {
         tasks: state.tasks,
-        projects: state.projects,
-        selectedProjectId: state.selectedProjectId,
+        categories: state.categories, // Changed from projects to categories
+        selectedCategoryId: state.selectedCategoryId, // Changed from selectedProjectId
         selectedTaskId: state.selectedTaskId,
         selectedView: state.selectedView,
         activeFilter: state.activeFilter,
@@ -44,8 +124,6 @@ const saveState = (state) => {
 
 // Function to load state (will be called within useEffect)
 const loadState = () => {
-  // This check is now technically redundant because we call it inside useEffect,
-  // but it's good practice to keep it for clarity.
   if (typeof window === 'undefined') {
     return undefined;
   }
@@ -61,32 +139,40 @@ const loadState = () => {
   }
 };
 
-
 // --- Reducer ---
 const taskReducer = (state, action) => {
   switch (action.type) {
     case 'HYDRATE_STATE':
       // Merge loaded state with initial state structure, prioritizing loaded values
-      // Ensure all keys from initialState are present
       return {
         ...initialState, // Start with default structure
         ...(action.payload || {}), // Spread loaded state, overwriting defaults if present
-        // Ensure projects always includes 'inbox' if it was somehow removed/not saved
-        projects: action.payload?.projects?.find(p => p.id === 'inbox')
-                  ? action.payload.projects
-                  : [...(action.payload?.projects || []), { id: 'inbox', name: 'Inbox' }].filter((p, i, arr) => arr.findIndex(t => t.id === p.id) === i), // Ensure inbox exists and is unique
+        // Ensure categories always includes 'inbox' if it was somehow removed/not saved
+        categories: action.payload?.categories?.find(c => c.id === 'inbox')
+                  ? action.payload.categories
+                  : [...(action.payload?.categories || []), { id: 'inbox', name: 'Inbox' }].filter((c, i, arr) => arr.findIndex(t => t.id === c.id) === i),
       };
 
     case 'ADD_TASK': {
+      // If payload is already a complete task object (from API response)
+      if (action.payload.id) {
+        return {
+          ...state,
+          tasks: [...state.tasks, action.payload]
+        };
+      }
+      
+      // Otherwise create a new task with generated ID
       const newId = uuidv4();
       const newTask = {
         id: newId,
-        title: action.payload.title,
+        task_name: action.payload.title, // Changed from title to task_name
         content: action.payload.content || '',
         deadline: action.payload.deadline,
-        priority: action.payload.priority || 'none',
-        projectId: action.payload.projectId,
-        completed: false,
+        priority: action.payload.priority || 'low', // Changed from 'none' to 'low' to match ENUM values
+        category_name: action.payload.categoryName, // Changed from projectId to category_name
+        status: 'pending', // Added status field to match database
+        completed: false, // Keep for frontend compatibility
         createdAt: new Date().toISOString(),
       };
       return {
@@ -98,7 +184,11 @@ const taskReducer = (state, action) => {
     case 'TOGGLE_TASK': {
       const updatedTasks = state.tasks.map(task =>
         task.id === action.payload
-          ? { ...task, completed: !task.completed }
+          ? { 
+              ...task, 
+              completed: !task.completed,
+              status: !task.completed ? 'completed' : 'pending' // Update status to match database
+            }
           : task
       );
       return {
@@ -123,168 +213,260 @@ const taskReducer = (state, action) => {
       };
     }
 
-    case 'DELETE_TASK':
-      // ... existing DELETE_TASK logic ...
-       return {
-         ...state,
-         tasks: state.tasks.filter(task => task.id !== action.payload),
-         // If the deleted task was selected, deselect it
-         selectedTaskId: state.selectedTaskId === action.payload ? null : state.selectedTaskId
-       };
+    // Keep only one DELETE_TASK case
+    case 'DELETE_TASK': {
+      return {
+        ...state,
+        tasks: state.tasks.filter(task => task.id !== action.payload),
+        // If the deleted task was selected, clear the selection
+        selectedTaskId: state.selectedTaskId === action.payload ? null : state.selectedTaskId
+      };
+    }
+
+    // Keep only one TOGGLE_TASK case
+    case 'TOGGLE_TASK': {
+      const updatedTasks = state.tasks.map(task =>
+        task.id === action.payload
+          ? { 
+              ...task, 
+              completed: !task.completed,
+              status: !task.completed ? 'completed' : 'pending' // Update status to match database
+            }
+          : task
+      );
+      return {
+        ...state,
+        tasks: updatedTasks
+      };
+    }
+
+    case 'UPDATE_TASK_CATEGORY': {
+      return {
+        ...state,
+        tasks: state.tasks.map(task =>
+          task.id === action.payload.taskId
+            ? { ...task, category_name: action.payload.newCategoryName }
+            : task
+        )
+      };
+    }
 
     case 'UPDATE_TASK':
-       // ... existing UPDATE_TASK logic ...
-       return {
-         ...state,
-         tasks: state.tasks.map(task =>
-           task.id === action.payload.taskId ? { ...task, ...action.payload.updates } : task
-         )
-       };
+      return {
+        ...state,
+        tasks: state.tasks.map(task =>
+          task.id === action.payload.taskId ? { 
+            ...task, 
+            ...action.payload.updates,
+            // Map frontend field names to database field names if needed
+            ...(action.payload.updates.title && { task_name: action.payload.updates.title }),
+            ...(action.payload.updates.projectId && { category_name: action.payload.updates.projectId }),
+          } : task
+        )
+      };
 
     case 'SELECT_TASK':
       console.log('Reducer handling SELECT_TASK:', action.payload);
-      const nextSelectedTaskId = action.payload;
-      // Avoid re-selecting the same task if already selected (optional)
-      // if (nextSelectedTaskId === state.selectedTaskId) {
-      //   return state;
-      // }
-      return { ...state, selectedTaskId: nextSelectedTaskId };
+      return { ...state, selectedTaskId: action.payload };
 
-    case 'MOVE_TASK_TO_PROJECT':
-      console.log('Reducer handling MOVE_TASK_TO_PROJECT:', action.payload);
-      const { taskId, newProjectId } = action.payload;
+    case 'MOVE_TASK_TO_CATEGORY': // Changed from MOVE_TASK_TO_PROJECT
+      console.log('Reducer handling MOVE_TASK_TO_CATEGORY:', action.payload);
+      const { taskId, newCategoryName } = action.payload; // Changed from newProjectId
       return {
         ...state,
         tasks: state.tasks.map(task =>
           task.id === taskId
-            ? { ...task, projectId: newProjectId }
+            ? { ...task, category_name: newCategoryName } // Changed from projectId
             : task
         )
-        // Optionally deselect task after moving
-        // selectedTaskId: state.selectedTaskId === taskId ? null : state.selectedTaskId
       };
 
-    case 'ADD_PROJECT': {
-      // ... existing ADD_PROJECT logic ...
-       const newProject = { id: uuidv4(), name: action.payload.name };
-       return {
-         ...state,
-         projects: [...state.projects, newProject],
-         // Optionally select the new project
-         // selectedProjectId: newProject.id,
-         // selectedView: 'project'
-       };
-    }
-
-    case 'DELETE_PROJECT': {
-      // ... existing DELETE_PROJECT logic ...
-       const projectIdToDelete = action.payload;
-       if (projectIdToDelete === 'inbox') return state; // Cannot delete inbox
-
-       const tasksToMove = state.tasks.filter(task => task.projectId === projectIdToDelete);
-       const remainingTasks = state.tasks.filter(task => task.projectId !== projectIdToDelete);
-       const movedTasks = tasksToMove.map(task => ({ ...task, projectId: 'inbox' }));
-
-       return {
-         ...state,
-         projects: state.projects.filter(project => project.id !== projectIdToDelete),
-         tasks: [...remainingTasks, ...movedTasks],
-         // If the deleted project was selected, switch to inbox
-         selectedProjectId: state.selectedProjectId === projectIdToDelete ? 'inbox' : state.selectedProjectId,
-         selectedView: state.selectedProjectId === projectIdToDelete ? 'project' : state.selectedView,
-         activeFilter: state.selectedProjectId === projectIdToDelete ? null : state.activeFilter, // Reset filter if project view changes
-         selectedTaskId: tasksToMove.some(t => t.id === state.selectedTaskId) ? null : state.selectedTaskId // Deselect task if it was in deleted project
-       };
-    }
-
-    case 'RENAME_PROJECT':
-      // ... existing RENAME_PROJECT logic ...
-       if (action.payload.projectId === 'inbox') return state; // Cannot rename inbox
-       return {
-         ...state,
-         projects: state.projects.map(project =>
-           project.id === action.payload.projectId ? { ...project, name: action.payload.newName } : project
-         )
-       };
-
-    case 'SELECT_PROJECT':
+    case 'ADD_CATEGORY': { // Changed from ADD_PROJECT
+      const newCategory = { id: uuidv4(), name: action.payload.name };
       return {
         ...state,
-        selectedProjectId: action.payload,
-        selectedView: 'project', // Optionally ensure view is set
-        selectedTaskId: null,    // Optionally deselect any task
+        categories: [...state.categories, newCategory], // Changed from projects
+      };
+    }
+
+    case 'DELETE_CATEGORY': { // Changed from DELETE_PROJECT
+      const categoryIdToDelete = action.payload;
+      if (categoryIdToDelete === 'inbox') return state; // Cannot delete inbox
+
+      const tasksToMove = state.tasks.filter(task => task.category_name === categoryIdToDelete); // Changed from projectId
+      const remainingTasks = state.tasks.filter(task => task.category_name !== categoryIdToDelete); // Changed from projectId
+      const movedTasks = tasksToMove.map(task => ({ ...task, category_name: 'inbox' })); // Changed from projectId
+
+      return {
+        ...state,
+        categories: state.categories.filter(category => category.id !== categoryIdToDelete), // Changed from projects
+        tasks: [...remainingTasks, ...movedTasks],
+        selectedCategoryId: state.selectedCategoryId === categoryIdToDelete ? 'inbox' : state.selectedCategoryId, // Changed from selectedProjectId
+        selectedView: state.selectedCategoryId === categoryIdToDelete ? 'category' : state.selectedView, // Changed from 'project'
+        activeFilter: state.selectedCategoryId === categoryIdToDelete ? null : state.activeFilter,
+        selectedTaskId: tasksToMove.some(t => t.id === state.selectedTaskId) ? null : state.selectedTaskId
+      };
+    }
+
+    case 'RENAME_CATEGORY': // Changed from RENAME_PROJECT
+      return {
+        ...state,
+        categories: state.categories.map(category => // Changed from projects
+          category.id === action.payload.categoryId // Changed from projectId
+            ? { ...category, name: action.payload.newName }
+            : category
+        )
       };
 
-    case 'SET_VIEW':
-      // ... existing SET_VIEW logic ...
-       return {
-         ...state,
-         selectedView: action.payload.view,
-         selectedProjectId: action.payload.view === 'project' ? action.payload.projectId : state.selectedProjectId, // Keep project ID if switching to filter
-         activeFilter: action.payload.view === 'filter' ? action.payload.filter : null,
-         selectedTaskId: null // Deselect task when changing view
-       };
+    case 'SELECT_CATEGORY': // Changed from SELECT_PROJECT
+      return {
+        ...state,
+        selectedCategoryId: action.payload, // Changed from selectedProjectId
+        selectedTaskId: null // Deselect task when changing categories
+      };
+
     default:
       return state;
   }
 };
 
-// --- Context ---
+// --- Context Creation ---
 const TaskContext = createContext();
 
 // --- Provider Component ---
-export const TaskProvider = ({ children }) => {
-  // Initialize reducer with the default initialState ALWAYS
+export function TaskProvider({ children }) {
+  const { showError, showSuccess } = useToast();
   const [state, dispatch] = useReducer(taskReducer, initialState);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // State to track if hydration is complete (uses useState)
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  // Load state from localStorage only on the client, after initial render
+  // Load state from localStorage on mount
   useEffect(() => {
-    const loadedState = loadState();
-    if (loadedState) {
-      dispatch({ type: 'HYDRATE_STATE', payload: loadedState });
+    if (typeof window !== 'undefined') {
+      const savedState = loadState();
+      if (savedState) {
+        dispatch({ type: 'HYDRATE_STATE', payload: savedState });
+      }
+      setIsLoading(false);
     }
-    setIsHydrated(true); // Mark hydration as complete
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
-  // Save state to localStorage whenever it changes (only after initial hydration)
+  // Save state to localStorage whenever it changes
   useEffect(() => {
-    if (isHydrated) { // Only save state after the initial state has been potentially hydrated
-        saveState(state);
+    if (!isLoading) {
+      saveState(state);
     }
-  }, [state, isHydrated]); // Depend on state and isHydrated flag
+  }, [state, isLoading]);
 
-  // Helper function for today's date string
-  // Remove the duplicate placeholder declaration below
+  // Fetch tasks from API on mount
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        setIsLoading(true);
+        const tasks = await taskApi.getTasks();
+        
+        // Transform backend data to match frontend structure
+        const transformedTasks = tasks.map(task => ({
+          id: task.id,
+          task_name: task.task_name,
+          content: task.content,
+          deadline: task.deadline,
+          priority: task.priority || 'none',
+          category_name: task.category_name || 'inbox',
+          status: task.status || 'pending'
+        }));
+        
+        dispatch({ 
+          type: 'HYDRATE_STATE', 
+          payload: { 
+            ...state, 
+            tasks: transformedTasks,
+            categories: [
+              { id: 'inbox', name: 'Inbox' },
+              ...Array.from(new Set(transformedTasks.map(t => t.category_name)))
+                .filter(name => name && name !== 'inbox')
+                .map(name => ({ id: name, name }))
+            ]
+          } 
+        });
+        
+        showSuccess('Tasks loaded successfully');
+      } catch (error) {
+        console.error('Failed to fetch tasks:', error);
+        showError('Failed to load tasks. Please check your connection and try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-   const getTodayDateString = () => {
-     const today = new Date();
-     const year = today.getFullYear();
-     const month = String(today.getMonth() + 1).padStart(2, '0');
-     const day = String(today.getDate()).padStart(2, '0');
-     return `${year}-${month}-${day}`;
-   };
+    if (typeof window !== 'undefined' && localStorage.getItem('accessToken')) {
+      fetchTasks();
+    }
+  }, []);
 
+  // Helper function to get today's date string in YYYY-MM-DD format
+  const getTodayDateString = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
 
-  // Prevent rendering children until hydration is complete to avoid mismatches
-  // This is a common pattern to ensure client/server consistency when using localStorage
-  if (!isHydrated) {
-     // Optionally return a loading indicator or null
-     // Returning null might cause a brief flash, but ensures no mismatch
-     return null;
-     // Or return a basic loading skeleton:
-     // return <div>Loading...</div>;
-  }
+  // Filter tasks based on current view and selection
+  const getFilteredTasks = () => {
+    let filteredTasks = [...state.tasks];
+    
+    if (state.selectedView === 'category') { // Changed from 'project'
+      // Filter by selected category
+      filteredTasks = filteredTasks.filter(task => 
+        task.category_name === state.selectedCategoryId // Changed from projectId
+      );
+    } else if (state.selectedView === 'filter') {
+      // Apply active filter
+      switch (state.activeFilter) {
+        case 'today':
+          const today = getTodayDateString();
+          filteredTasks = filteredTasks.filter(task => 
+            task.deadline === today && task.status !== 'completed' // Changed from !task.completed
+          );
+          break;
+        case 'completed':
+          filteredTasks = filteredTasks.filter(task => 
+            task.status === 'completed' // Changed from task.completed
+          );
+          break;
+        // Add more filters as needed
+      }
+    }
+    
+    return filteredTasks;
+  };
 
+  // Provide the context value
+  const contextValue = {
+    ...state,
+    dispatch,
+    isLoading,
+    getTodayDateString,
+    getFilteredTasks,
+    // Ensure tasks is always an array, even if it's undefined in state
+    tasks: Array.isArray(state.tasks) ? state.tasks : [],
+    // Ensure categories is always an array, even if it's undefined in state
+    categories: state.categories || [],
+    // Provide renamed properties for backward compatibility
+    projects: state.categories || [], // Map categories to projects
+    selectedProjectId: state.selectedCategoryId, // Map selectedCategoryId to selectedProjectId
+  };
 
   return (
-    <TaskContext.Provider value={{ ...state, dispatch, getTodayDateString }}>
+    <TaskContext.Provider value={contextValue}>
       {children}
     </TaskContext.Provider>
   );
-};
+}
 
 // --- Custom Hook ---
-export const useTasks = () => useContext(TaskContext);
+export function useTasks() {
+  const context = useContext(TaskContext);
+  if (!context) {
+    throw new Error('useTasks must be used within a TaskProvider');
+  }
+  return context;
+}

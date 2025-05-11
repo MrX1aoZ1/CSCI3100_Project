@@ -1,178 +1,217 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useTasks } from '@/context/TaskContext';
-import { CheckCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { CheckCircleIcon as CheckCircleIconSolid } from '@heroicons/react/24/solid';
+import { CheckIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+import { taskApi } from '@/context/TaskContext'; // Import taskApi
+import { useToast } from '@/context/ToastContext'; // Import useToast
 
 export default function TaskList() {
-  const {
-    tasks,
-    projects,
-    selectedProjectId,
-    selectedTaskId,
-    selectedView,
-    activeFilter,
-    dispatch,
-    getTodayDateString
+  const { 
+    tasks, 
+    dispatch, 
+    selectedTaskId, 
+    selectedView, 
+    activeFilter, 
+    selectedCategoryId, // 从selectedProjectId更改
+    categories // 从projects更改
   } = useTasks();
-
-  const filteredTasks = tasks.filter(task => {
-    let match = true;
-
-    if (selectedView === 'project') {
-      // Always compare as strings and default to 'inbox'
-      const taskProjectId = String(task.projectId || 'inbox');
-      const selectedProjId = String(selectedProjectId || 'inbox');
-      match = taskProjectId === selectedProjId;
+  
+  const { showSuccess, showError } = useToast(); // Add useToast hook
+  const [filteredTasks, setFilteredTasks] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
+  
+  // 获取当前视图的标题
+  const getViewTitle = () => {
+    if (selectedView === 'category') { // 从'project'更改
+      const category = categories.find(c => c.id === selectedCategoryId); // 从project更改
+      return category ? category.name : 'Tasks';
     } else if (selectedView === 'filter') {
-      const today = getTodayDateString();
       switch (activeFilter) {
-        case 'all':
-          match = true;
-          break;
-        case 'today':
-          match = task.deadline === today && !task.completed;
-          break;
-        case 'completed':
-          match = task.completed === true;
-          break;
-        default:
-          match = false;
+        case 'all': return '所有任务';
+        case 'today': return '今日任务';
+        case 'completed': return '已完成任务';
+        default: return 'Tasks';
       }
-    } else {
-      match = false;
     }
-
-    return match;
-  });
-
-  // Always call hooks at the top level, not inside any condition
+    return 'Tasks';
+  };
+  
+  // 过滤和排序任务
   useEffect(() => {
-    if (filteredTasks.length === 0 && selectedTaskId) {
-      dispatch({ type: 'SELECT_TASK', payload: null });
+    // Ensure tasks is an array before trying to iterate
+    if (!Array.isArray(tasks)) {
+      console.error('Tasks is not an array:', tasks);
+      setFilteredTasks([]);
+      return;
     }
-  }, [filteredTasks.length, selectedTaskId, dispatch]);
-
-  const getPriorityClasses = (priority) => {
-    switch (priority) {
-      case 'high':
-        return 'border-l-red-500 dark:border-l-red-400';
-      case 'medium':
-        return 'border-l-yellow-500 dark:border-l-yellow-400';
-      case 'low':
-        return 'border-l-blue-500 dark:border-l-blue-400';
-      default:
-        return 'border-l-transparent';
+    
+    let result = [...tasks];
+    
+    // 根据当前视图过滤任务
+    if (selectedView === 'category') { // 从'project'更改
+      result = result.filter(task => task.category_name === selectedCategoryId); // 从projectId更改
+    } else if (selectedView === 'filter') {
+      if (activeFilter === 'today') {
+        const today = new Date().toISOString().split('T')[0];
+        result = result.filter(task => 
+          task.deadline === today && task.status !== 'completed' // 从!task.completed更改
+        );
+      } else if (activeFilter === 'completed') {
+        result = result.filter(task => task.status === 'completed'); // 从task.completed更改
+      } else if (activeFilter === 'all') {
+        // 显示所有任务，不需要过滤
+      }
     }
-  };
-
-  const handleToggleTask = (taskId, e) => {
-    e?.stopPropagation(); // Make stopPropagation optional
-    console.log('Toggling task:', taskId);
-    dispatch({ type: 'TOGGLE_TASK', payload: taskId });
-  };
-
-  const handleDeleteTask = (taskId, e) => {
-    e?.stopPropagation(); // Make stopPropagation optional
-    console.log('Deleting task:', taskId);
-    dispatch({ type: 'DELETE_TASK', payload: taskId });
-  };
-
-  const handleSelectTask = (taskId) => {
-    console.log('Selecting task:', taskId);
+    
+    // 排序任务
+    result.sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+    
+    setFilteredTasks(result);
+  }, [tasks, selectedView, selectedCategoryId, activeFilter, sortConfig]); // 从selectedProjectId更改
+  
+  // 处理任务选择
+  const handleTaskSelect = (taskId) => {
     dispatch({ type: 'SELECT_TASK', payload: taskId });
   };
-
-  // Remove the handleMoveTask function since we're removing that functionality
   
-  const handleDragStart = (e, taskId) => {
-    console.log('Drag start:', taskId);
-    e.dataTransfer.setData('text/plain', taskId);
-    e.dataTransfer.effectAllowed = 'move';
-    e.currentTarget.classList.add('opacity-50');
+  // 处理任务完成状态切换
+  const handleToggleComplete = async (e, taskId) => {
+    e.stopPropagation();
+    try {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+      
+      const newStatus = task.status === 'completed' ? 'pending' : 'completed';
+      
+      await taskApi.updateTaskStatus(taskId, newStatus);
+      dispatch({ type: 'TOGGLE_TASK', payload: taskId });
+      showSuccess('Task status updated');
+    } catch (error) {
+      console.error('Failed to update task status:', error);
+      showError('Failed to update task status');
+    }
   };
-
-  const handleDragEnd = (e) => {
-     e.currentTarget.classList.remove('opacity-50');
+  
+  // 处理任务删除
+  const handleDeleteTask = async (e, taskId) => {
+    e.stopPropagation();
+    if (!taskId) return;
+    
+    try {
+      // First call the API to delete the task
+      await taskApi.deleteTask(taskId);
+      
+      // Then update the local state
+      dispatch({ type: 'DELETE_TASK', payload: taskId });
+      
+      showSuccess('Task deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+      showError('Failed to delete task');
+    }
   };
-
-  // Choose one return structure - using the second one with the cleaner UI
+  
+  // 处理排序
+  const requestSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+  
+  // Add this useEffect inside the component
+  useEffect(() => {
+    // Ensure tasks is an array before trying to iterate
+    if (!Array.isArray(tasks)) {
+      console.error('Tasks is not an array:', tasks);
+      return; // Exit early if tasks is not an array
+    }
+  }, [tasks, selectedTaskId]);
+  
+  // Check if tasks is valid before rendering
+  if (!Array.isArray(tasks)) {
+    return <div className="p-4 text-center text-gray-500 dark:text-gray-400">Loading tasks...</div>;
+  }
+  
   return (
-    <div className="h-full flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-600 scrollbar-track-transparent">
+    <div className="flex flex-col h-full">
+      <div className="p-4 border-b border-gray-200 dark:border-zinc-700">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{getViewTitle()}</h2>
+      </div>
+      
+      <div className="flex-1 overflow-y-auto">
         {filteredTasks.length === 0 ? (
           <div className="p-4 text-center text-gray-500 dark:text-gray-400">
-            No tasks found
+            没有任务
           </div>
         ) : (
           <ul className="divide-y divide-gray-200 dark:divide-zinc-700">
             {filteredTasks.map(task => (
               <li 
                 key={task.id}
-                className={`relative ${selectedTaskId === task.id ? 'task-item-selected' : ''} 
-                  ${task.priority === 'high' ? 'border-l-4 border-l-red-500 dark:border-l-red-400' : ''}
-                  ${task.priority === 'medium' ? 'border-l-4 border-l-yellow-500 dark:border-l-yellow-400' : ''}
-                  ${task.priority === 'low' ? 'border-l-4 border-l-blue-500 dark:border-l-blue-400' : ''}
-                  ${!task.priority || task.priority === 'none' ? 'border-l-4 border-l-transparent' : ''}
-                `}
+                onClick={() => handleTaskSelect(task.id)}
+                className={`p-4 cursor-pointer transition-colors ${
+                  task.id === selectedTaskId 
+                    ? 'bg-blue-50 dark:bg-blue-900/20' 
+                    : 'hover:bg-gray-50 dark:hover:bg-zinc-800'
+                }`}
               >
-                <div className={`group flex items-center p-3 hover:bg-gray-50 dark:hover:bg-zinc-700/50
-                  ${task.priority === 'high' ? 'bg-red-50 dark:bg-red-900/10' : ''}
-                  ${task.priority === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/10' : ''}
-                  ${task.priority === 'low' ? 'bg-blue-50 dark:bg-blue-900/10' : ''}
-                `}>
-                  
-                  {/* Checkbox */}
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={(e) => handleToggleTask(task.id, e)}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-700"
-                  />
-                  
-                  {/* Task title */}
-                  <div 
-                    className={`ml-3 flex-1 cursor-pointer ${task.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}
-                    onClick={() => handleSelectTask(task.id)}
-                  >
-                    <span className="block text-sm font-medium">{task.title}</span>
-                    
-                    {/* Task metadata (deadline, priority, etc) */}
-                    <div className="mt-1 flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-3">
+                    <button
+                      onClick={(e) => handleToggleComplete(e, task.id)}
+                      className={`mt-0.5 flex-shrink-0 h-5 w-5 rounded-full border ${
+                        task.status === 'completed' // 从task.completed更改
+                          ? 'bg-green-500 border-green-500 text-white'
+                          : 'border-gray-300 dark:border-zinc-600'
+                      } flex items-center justify-center`}
+                    >
+                      {task.status === 'completed' && <CheckIcon className="h-3 w-3" />} {/* 从task.completed更改 */}
+                    </button>
+                    <div>
+                      <h3 className={`text-sm font-medium ${
+                        task.status === 'completed' // 从task.completed更改
+                          ? 'text-gray-400 dark:text-gray-500 line-through'
+                          : 'text-gray-800 dark:text-gray-200'
+                      }`}>
+                        {task.task_name} {/* 从task.title更改 */}
+                      </h3>
                       {task.deadline && (
-                        <span>
-                          {new Date(task.deadline).toLocaleDateString()}
-                        </span>
-                      )}
-                      {task.priority && task.priority !== 'none' && (
-                        <span className={`
-                          px-2 py-0.5 rounded-full text-xs font-medium
-                          ${task.priority === 'high' ? 'bg-red-200 text-red-900 dark:bg-red-800 dark:text-red-100' : ''}
-                          ${task.priority === 'medium' ? 'bg-yellow-200 text-yellow-900 dark:bg-yellow-800 dark:text-yellow-100' : ''}
-                          ${task.priority === 'low' ? 'bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100' : ''}
-                        `}>
-                          {task.priority}
-                        </span>
-                      )}
-                      {task.projectId && (
-                        <span className="bg-gray-100 dark:bg-zinc-700 px-1.5 py-0.5 rounded text-xs">
-                          {projects.find(p => p.id === task.projectId)?.name || 'Unknown'}
-                        </span>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          截止日期: {task.deadline}
+                        </p>
                       )}
                     </div>
                   </div>
-                  
-                  {/* Delete button - visible on hover */}
-                  <button
-                    onClick={(e) => handleDeleteTask(task.id, e)}
-                    className="opacity-0 group-hover:opacity-100 ml-2 text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
-                    title="Delete task"
-                  >
-                    <TrashIcon className="h-5 w-5" />
-                  </button>
-                  
-                  {/* "Move to project" dropdown has been removed */}
+                  <div className="flex items-center space-x-2">
+                    {task.priority !== 'none' && (
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        task.priority === 'high' 
+                          ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200'
+                          : task.priority === 'medium'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200'
+                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200'
+                      }`}>
+                        {task.priority}
+                      </span>
+                    )}
+                    <button
+                      onClick={(e) => handleDeleteTask(e, task.id)}
+                      className="text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </li>
             ))}

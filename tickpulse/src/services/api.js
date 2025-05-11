@@ -1,7 +1,7 @@
 import { formatErrorMessage, logError } from '@/utils/errorHandling';
 
 // API base URL - change this to your backend URL
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:3000';
 
 /**
  * Helper for making authenticated requests with error handling
@@ -9,7 +9,7 @@ const API_BASE_URL = 'http://localhost:5000/api';
 async function fetchWithAuth(endpoint, options = {}) {
   try {
     // Get the token from localStorage
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('accessToken');
     
     const headers = {
       'Content-Type': 'application/json',
@@ -97,6 +97,12 @@ export const taskApi = {
     fetchWithAuth(`/tasks/${id}/category`, {
       method: 'PUT',
       body: JSON.stringify({ category })
+    }),
+
+  updateTaskCategory: async (id, category_name) =>
+    fetchWithAuth(`/tasks/${id}/category`, {
+      method: 'PUT',
+      body: JSON.stringify({ category_name })
     }),
 
   updateTaskDeadline: async (id, content) =>
