@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:3000
 @contentType = application/json
 
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoib2hub2hlbGxvQGV4YW1wbGUuY29tIiwianRpIjoiMGU0YWMwMjMtZWI2YS00MTUzLWFiNTctZGYwMzVhNTcyN2FjIiwiaWF0IjoxNzQ2Mzg3MzAzLCJleHAiOjE3NDYzODgyMDN9.az-0qZYfNjZ1w1Mvu9YomtiRvKXXyOte2j0zTSolybI
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoidGVzdHVzZXJAZXhhbXBsZS5jb20iLCJqdGkiOiI3MGMyYzVkOC1hZmJmLTQyNDgtOWE1OC03ZmFkNWQwN2M2ODEiLCJpYXQiOjE3NDY4OTEwODYsImV4cCI6MTc0Njg5MTk4Nn0.7MaaIAV7lt5xJMX_AWHc40U6bpb3WGVioa5cXLRh2bo
 @refresh_token = 254654ec-8e6d-489c-83d1-fbd983133fee
 
 ### [2a] 用户登录

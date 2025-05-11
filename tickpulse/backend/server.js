@@ -7,6 +7,8 @@ const passport = require('passport');
 const connectDB = require("./config/db");
 const createTaskTable = require('./models/Task');
 const createUserTable = require('./models/User');
+const createTimerTable = require('./models/Timer');
+const createCategoryTable = require('./models/Category');
 
 // 初始化模块
 const authRoutes = require('./routes/authRoutes');
@@ -29,13 +31,22 @@ app.use(session({
   saveUninitialized: false
 }));
 
-// Connect to the Database
-connectDB();
+// Connect to the Database and Ensure Tables
 (async () => {
-    await createTaskTable();
-})();
-(async () => {
-    await createUserTable();
+    try {
+        // Ensure the database is created and connected
+        await connectDB();
+
+        // Create tables after the database is ensured
+        await createUserTable();
+        await createTaskTable();
+        await createCategoryTable();
+        await createTimerTable();
+
+        //console.log('All tables created successfully');
+    } catch (error) {
+        console.error('Error during initialization:', error);
+    }
 })();
 
 app.use(passport.initialize());
@@ -55,9 +66,12 @@ app.get('/api/data', (req, res) => {
 
 // Routes
 const taskRoutes = require("./routes/taskRoutes");
+const timerRoutes = require("./routes/timerRoutes");
+const { create } = require('@mui/material/styles/createTransitions');
 // app.use("/api/auth", authRoutes);
 // app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/timers", timerRoutes);
 // app.use("/api/reports", reportRoutes);
 
 // Start Server
