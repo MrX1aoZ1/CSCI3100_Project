@@ -1,7 +1,8 @@
 @baseUrl = http://localhost:3000
 @contentType = application/json
 
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoidGVzdHVzZXJAZXhhbXBsZS5jb20iLCJqdGkiOiI5NWVhY2ExZi03YWUwLTQ0NmEtYjk5Yi0zYWNkNmNiYTM2NjQiLCJpYXQiOjE3NDY4OTc5MzAsImV4cCI6MTc0Njg5ODgzMH0.Uwe3pXEwWieW2-QyGy-3myVFtDeQFhiGA2nKP6s1aDs
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoidGVzdHVzZXJAZXhhbXBsZS5jb20iLCJqdGkiOiIxYzQ0NzVhOC1jYmYwLTQxMGUtOGFiNi03NzczYTYzNDRjMTgiLCJpYXQiOjE3NDY4OTkyMTYsImV4cCI6MTc0NjkwMDExNn0.j2m7j9gbsoQ54uHxavyukoZl84fDiBjGZ45MX578Nkc
+  "refreshToken": "924df9ee-516a-4f6f-94d5-09a5efa5a09b
 @refresh_token = 254654ec-8e6d-489c-83d1-fbd983133fee
 
 
@@ -19,7 +20,7 @@ Content-Type: application/json
 
 {
   "user_id": 1,
-  "date": "2025-05-10",
+  "date": "2025-05-15",
   "timer_duration": 3600
 }
 

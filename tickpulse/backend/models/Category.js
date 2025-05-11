@@ -1,4 +1,4 @@
-// ./backend/models/Task.js
+// ./backend/models/Category.js
 const mysql = require('mysql2/promise');
 
 const createCategoryTable = async () => {

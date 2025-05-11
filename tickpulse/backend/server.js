@@ -31,19 +31,22 @@ app.use(session({
   saveUninitialized: false
 }));
 
-// Connect to the Database
-connectDB();
+// Connect to the Database and Ensure Tables
 (async () => {
-    await createTaskTable();
-})();
-(async () => {
-    await createUserTable();
-})();
-(async () => {
-    await createTimerTable();
-})();
-(async () => {
-    await createCategoryTable();
+    try {
+        // Ensure the database is created and connected
+        await connectDB();
+
+        // Create tables after the database is ensured
+        await createUserTable();
+        await createTaskTable();
+        await createCategoryTable();
+        await createTimerTable();
+
+        //console.log('All tables created successfully');
+    } catch (error) {
+        console.error('Error during initialization:', error);
+    }
 })();
 
 app.use(passport.initialize());
@@ -64,6 +67,7 @@ app.get('/api/data', (req, res) => {
 // Routes
 const taskRoutes = require("./routes/taskRoutes");
 const timerRoutes = require("./routes/timerRoutes");
+const { create } = require('@mui/material/styles/createTransitions');
 // app.use("/api/auth", authRoutes);
 // app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);

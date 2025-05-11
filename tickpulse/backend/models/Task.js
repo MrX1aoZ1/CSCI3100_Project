@@ -17,7 +17,7 @@ const createTaskTable = async () => {
                 content TEXT DEFAULT NULL,
                 status ENUM('pending', 'in-progress', 'completed') DEFAULT 'pending',
                 deadline DATETIME DEFAULT NULL,
-                priority ENUM('low', 'medium', 'high') DEFAULT 'medium',
+                priority ENUM('null', 'low', 'medium', 'high') DEFAULT 'null',
                 user_id INT NOT NULL,
                 category_name VARCHAR(255) DEFAULT NULL,
                 FOREIGN KEY (user_id) REFERENCES Users(id)

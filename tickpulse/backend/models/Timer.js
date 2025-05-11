@@ -1,4 +1,4 @@
-// ./backend/models/Task.js
+// ./backend/models/Timer.js
 const mysql = require('mysql2/promise');
 
 const createTimerTable = async () => {
