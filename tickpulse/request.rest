@@ -2,8 +2,7 @@
 @baseUrl = http://localhost:3000
 @contentType = application/json
 
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoiaGF5YXNoaWNvY29AZ21haWwuY29tIiwianRpIjoiYjc1NTI4NjAtNjM1ZC00Y2FiLWFhYTAtNTM1YTcyZTI4NjY0IiwiaWF0IjoxNzQ2ODYyMDc1LCJleHAiOjE3NDY4NjI5NzV9.t4Hv6nzlNuurgMd9l1dA71hDvBFVPMZPxjHRd_UCkn0
-@refresh_token = d080e300-a66c-4d13-8963-ed939c56135c
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoidGVzdHVzZXJAZXhhbXBsZS5jb20iLCJqdGkiOiIyMThhMjVhYi1iZTRkLTRlYjgtOWIxZC1kOTRlOGNhYzEyOWQiLCJpYXQiOjE3NDY4OTcwMDIsImV4cCI6MTc0Njg5NzkwMn0.CFVPxwbMiLduGSjI0SscFRg93po4XalE601w1myCczo
 
 ### [1] 用户注册
 # @name signup 

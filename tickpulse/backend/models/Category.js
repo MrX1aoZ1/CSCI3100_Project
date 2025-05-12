@@ -12,7 +12,8 @@ const createCategoryTable = async () => {
 
         const createTableQuery = `
             CREATE TABLE IF NOT EXISTS Category (
-                category_name VARCHAR(255) NOT NULL PRIMARY KEY,
+                category_id INT AUTO_INCREMENT PRIMARY KEY,
+                category_name VARCHAR(255) NOT NULL,
                 user_id INT NOT NULL,
                 FOREIGN KEY (user_id) REFERENCES Users(id)
             );
