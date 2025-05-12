@@ -67,12 +67,14 @@ app.get('/api/data', (req, res) => {
 // Routes
 const taskRoutes = require("./routes/taskRoutes");
 const timerRoutes = require("./routes/timerRoutes");
-const { create } = require('@mui/material/styles/createTransitions');
+const licenseKeyRoutes = require("./routes/licenseKeyRoutes");
 // app.use("/api/auth", authRoutes);
 // app.use("/api/users", userRoutes);
+// app.use("/api/reports", reportRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/timers", timerRoutes);
-// app.use("/api/reports", reportRoutes);
+app.use("/api/license", licenseKeyRoutes)
+
 
 // Start Server
 // const PORT = process.env.PORT || 5000;

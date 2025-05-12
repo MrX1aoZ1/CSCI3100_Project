@@ -7,13 +7,13 @@ const connectDB = require('../config/db'); // Assuming you have a connectDB func
 // @access  Private
 const getTasks = async (req, res) => {
     try {
-        console.log('getTasks called');
+        // console.log('getTasks called');
         const connection = await connectDB();
         const [tasks] = await connection.query(
             'SELECT * FROM tasks WHERE user_id = ?',
             [req.user.id]
         );
-        console.log("getTasks");
+        // console.log("getTasks");
         res.status(200).json(tasks);
         await connection.end();
     } catch (error) {

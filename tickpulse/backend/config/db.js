@@ -8,7 +8,7 @@ const connectDB = async () => {
             password: process.env.MYSQL_PASSWORD,
             database: process.env.MYSQL_DATABASE,
         });
-        console.log('MySQL connected');
+        // console.log('MySQL connected');
         return connection; // Return the connection if needed elsewhere
     } catch (error) {
         console.error('MySQL connection error:', error);

@@ -10,14 +10,14 @@ export default function RegisterPage() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [email, setEmail] = useState('w@w');
-  const [password, setPassword] = useState('078529dj');
-  const [confirmPassword, setConfirmPassword] = useState('078529dj');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('1234.QWer');
+  const [confirmPassword, setConfirmPassword] = useState('1234.QWer');
+  const [licenseKey, setLicenseKey] = useState('9X7P-2R4F-8K3Q-5T6Z');
 
-  const [emailError, setEmailError] = useState(undefined);
-  const [passwordError, setPasswordError] = useState(undefined);
-  const [confirmPasswordError, setConfirmPasswordError] = useState(undefined);
   const [formError, setFormError] = useState(undefined);
+
+  const LICENSE_KEY_REGEX = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -29,62 +29,89 @@ export default function RegisterPage() {
   const submitHandler = useCallback(
     async (event) => {
       event.preventDefault();
-      setEmailError(undefined);
-      setPasswordError(undefined);
-      setConfirmPasswordError(undefined);
       setFormError(undefined);
 
       if (!email) {
-        setEmailError("郵箱不能為空");
+        setFormError("Email cannot be empty");
         return;
       }
 
       if (!password) {
-        setPasswordError("密碼不能為空");
+        setFormError("Password cannot be empty");
         return;
       }
 
       if (password.length < 8) {
-        setPasswordError("密碼長度不能小於8");
+        setFormError("Password length cannot be shorter than 8");
         return;
       }
 
       if (password.length > 63) {
-        setPasswordError("密碼長度不能大於63");
+        setFormError("Password length cannot be longer than 863");
         return;
       }
 
-      if (!/^[a-zA-Z0-9!@#$%^&*]{8,63}$/.test(password)) {
-        setPasswordError("密碼只能包含英文字母、數字和特殊符號");
+      if (!/(?=.*[0-9])/.test(password)) {
+        setFormError("Password must contain numbers");
+        return;
+      }
+
+      if (!/(?=.*[a-z])/.test(password)) {
+        setFormError("Password must contain lowercase letters");
+        return;
+      }
+
+      if (!/(?=.*[A-Z])/.test(password)) {
+        setFormError("Password must contain uppercase letters");
+        return;
+      }
+
+      if (!/(?=.*[!@#$%^&*.])/.test(password)) {
+        setFormError("Password must contain special characters");
+        return;
+      }
+
+      if (!/^[a-zA-Z0-9!@#$%^&*.]{8,63}$/.test(password)) {
+        setFormError("Password can only contain letters, numbers and special characters");
         return;
       }
 
       if (!confirmPassword) {
-        setConfirmPasswordError("確認密碼不能為空");
+        setFormError("Confirmed password cannot be empty");
         return;
       }
 
       if (password !== confirmPassword) {
-        setPasswordError("密碼和確認密碼不一致");
-        setConfirmPasswordError("密碼和確認密碼不一致");
+        setFormError("Password and confirmed password do not match");
         return;
       }
 
-      
+      if (!licenseKey) {
+        setFormError("License Key cannot be empty");
+        return;
+      }
+
+      if (!licenseKey.match(LICENSE_KEY_REGEX)) {
+        setFormError("License Key is not valid");
+        return;
+      }
+
       setIsLoading(true);
 
       console.log(email);
       console.log(password);
+      console.log(licenseKey);
 
       try {
         const response = await fetch(
           'http://localhost:3000/auth/sign-up',
           {
             method: 'POST',
-            headers: { 
+            headers: {
               Accept: 'application/json',
-              'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password, licenseKey }),
           });
 
         console.log('Login response status:', response.status);
@@ -93,30 +120,25 @@ export default function RegisterPage() {
 
         if (response.status === 400) {
           setIsLoading(false);
-          setEmailError("Email 已經被註冊");
+          setFormError("Email already exists");
           return;
         }
         if (500 <= response.status && response.status < 600) {
           setIsLoading(false);
-          setFormError("伺服器錯誤，請稍後再試");
+          setFormError("Server error, please try again later");
         }
 
         if (!response.ok) {
           setIsLoading(false);
-          setFormError("發生未知錯誤，請稍後再試");
+          setFormError("Unknown error, please try again later");
           return;
         }
-
-        // localStorage.setItem('accessToken', data.accessToken);
-        // localStorage.setItem('refreshToken', data.refreshToken);
-        console.log(response)
 
         router.push('/login');
 
       } catch (error) {
         setIsLoading(false);
-        setFormError("網絡錯誤，請稍後再試");
-        console.error('Login error:', error);
+        setFormError("Network error, please try again later");
       }
     },
     [email, password, confirmPassword, router],
@@ -126,16 +148,15 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-stone-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
-        {/* 注册卡片 */}
         <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
-          {/* 标题 */}
+          {/* Title */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">創建新賬戶</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Account</h1>
           </div>
 
-          {/* 注册表单 */}
+          {/* Sign-up Form */}
           <form className="mt-8 space-y-6" onSubmit={submitHandler}>
-            {/* 邮箱 */}
+            {/* Email */}
             <div className="relative">
               <FiMail className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
@@ -145,12 +166,11 @@ export default function RegisterPage() {
                   setEmail(event.target.value);
                 }}
                 className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                placeholder="郵箱"
-                error={emailError}
+                placeholder="Email Address"
               />
             </div>
 
-            {/* 密码 */}
+            {/* Password */}
             <div className="relative">
               <FiLock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
@@ -160,12 +180,11 @@ export default function RegisterPage() {
                   setPassword(event.target.value);
                 }}
                 className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                placeholder="密碼"
-                error={passwordError}
+                placeholder="Password"
               />
             </div>
 
-            {/* 确认密码 */}
+            {/* Confirmed Password */}
             <div className="relative">
               <FiLock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
@@ -175,8 +194,41 @@ export default function RegisterPage() {
                   setConfirmPassword(event.target.value);
                 }}
                 className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                placeholder="確認密碼"
-                error={confirmPasswordError}
+                placeholder="Confirmed Password"
+              />
+            </div>
+
+            {/* License Key */}
+            <div className="relative">
+              <FiLock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="license key"
+                value={licenseKey}
+                onChange={(event) => {
+                  // 1. Only keep alphabet and numbers
+                  let rawValue = event.target.value
+                    .replace(/[^a-zA-Z0-9]/g, '') // Delete all non-alphanumeric characters
+                    .toUpperCase();
+
+                  // 2. Insert "-" automatically every 4 characters
+                  let formattedValue = '';
+                  for (let i = 0; i < rawValue.length; i++) {
+                    if (i > 0 && i % 4 === 0 && i < 16) {
+                      formattedValue += '-';
+                    }
+                    formattedValue += rawValue[i];
+                  }
+
+                  // 3. Maximum 19 characters for the license key 
+                  //    4 + 1 + 4 + 1 + 4 + 1 + 4
+                  if (formattedValue.length > 19) {
+                    formattedValue = formattedValue.slice(0, 19);
+                  }
+
+                  setLicenseKey(formattedValue);
+                }}
+                className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                placeholder="License Key (AAAA-BBBB-CCCC-DDDD)"
               />
             </div>
 

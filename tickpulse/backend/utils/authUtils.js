@@ -26,8 +26,21 @@ const tokenStore = {
 
   cleanupExpired() {
     const now = Date.now();
+
+    // this.accessTokens.forEach((value, key) => {
+    //   // 打印每个 Token 的过期时间
+    //   console.log(
+    //     `检查 Access Token: ${key}\n` +
+    //     `过期时间: ${new Date(value.expires).toISOString()}\n` +
+    //     `是否过期: ${value.expires < now ? '是' : '否'}\n` +
+    //     `是否有效: ${value.valid}` 
+    //   );
+    // });
+
+
     // 清理过期Access Token
     this.accessTokens.forEach((value, key) => {
+      console.log(value.expires)
       if (value.expires < now) this.accessTokens.delete(key);
     });
     // 清理过期Refresh Token
@@ -38,7 +51,7 @@ const tokenStore = {
 };
 
 // 定时清理任务
-setInterval(() => tokenStore.cleanupExpired(), 60 * 1000);
+setInterval(() => tokenStore.cleanupExpired(), 5 * 1000);
 
 function generateAccessToken(user) {
   const jti = uuidv4();
@@ -49,15 +62,21 @@ function generateAccessToken(user) {
   );
 
   tokenStore.addAccessToken(jti, Date.now() + 15 * 60 * 1000);
+
+  const remainingTime = tokenStore.accessTokens.get(jti).expires - Date.now();
+  if (remainingTime < 5 * 60 * 1000) {
+    return { token, jti, needsRefresh: true };
+  }
+
   return { token, jti };
 }
 
 function generateRefreshToken(userId) {
-	const refreshToken = uuidv4(); // 仅生成UUID
-	const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7天有效期
-	tokenStore.addRefreshToken(refreshToken, userId, expires);
-	return refreshToken;	
-  }
+  const refreshToken = uuidv4(); // 仅生成UUID
+  const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7天有效期
+  tokenStore.addRefreshToken(refreshToken, userId, expires);
+  return refreshToken;
+}
 
 function verifyToken(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1];

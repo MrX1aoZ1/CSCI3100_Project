@@ -2,7 +2,7 @@
 @baseUrl = http://localhost:3000
 @contentType = application/json
 
-@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoiaGF5YXNoaWNvY29AZ21haWwuY29tIiwianRpIjoiYjc1NTI4NjAtNjM1ZC00Y2FiLWFhYTAtNTM1YTcyZTI4NjY0IiwiaWF0IjoxNzQ2ODYyMDc1LCJleHAiOjE3NDY4NjI5NzV9.t4Hv6nzlNuurgMd9l1dA71hDvBFVPMZPxjHRd_UCkn0
+@access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoiaGF5YXNoaWNvY29AZ21haWwuY29tIiwianRpIjoiNWJlOWQzZmItNTlhYS00NjM3LTllMDYtN2MxYTliZTkyZDAyIiwiaWF0IjoxNzQ3MDYwMDM1LCJleHAiOjE3NDcwNjA5MzV9.yF14eGah49_lInCcmCWHwxP65nMyBOvUcV-vfMul9Z0
 @refresh_token = d080e300-a66c-4d13-8963-ed939c56135c
 
 ### [1] 用户注册
@@ -11,7 +11,7 @@ POST {{baseUrl}}/auth/sign-up
 Content-Type: {{contentType}}
 
 {
-    "email": "testuser@example.com",
+    "email": "testuser899@example.com",
     "password": "P@ssw0rd123!"
 }
 
@@ -55,8 +55,18 @@ Content-Type: {{contentType}}
     "password": "0515hayashi"
 }
 
-### [3] 访问受保护数据 Access
-GET {{baseUrl}}/api/home-data
+### [2e] 用户登录
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "testuser899@example.com",
+    "password": "P@ssw0rd123!"
+}
+
+### [3] Obtain License Key
+GET {{baseUrl}}/api/license
 Authorization: Bearer {{access_token}}
 
 ### [4] 验证令牌有效性 Access
@@ -88,6 +98,9 @@ Content-Type: {{contentType}}
 ### [8] 失效令牌测试（应在注销后返回401）
 GET {{baseUrl}}/api/protected-data
 Authorization: Bearer {{access_token}}
+
+
+
 
 ### [1] Get All Tasks
 GET {{baseUrl}}/api/tasks
