@@ -13,6 +13,7 @@ import "@/styles/globals.css";
 
 export default function Home() {
   const router = useRouter();
+  
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -36,4 +37,5 @@ export default function Home() {
       </ToastProvider>
     </ThemeProvider>
   );
+  
 }

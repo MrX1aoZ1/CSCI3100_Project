@@ -199,99 +199,69 @@ export default function Timer() {
           <circle
             cx="50"
             cy="50"
-            r="46"
+            r="45"
             fill="none"
             stroke={getTimerColor()}
             strokeWidth="8"
-            strokeDasharray="289.02652413026095"
-            strokeDashoffset={289.02652413026095 * (1 - calculateProgress() / 100)}
+            strokeDasharray="283"
+            strokeDashoffset={283 - (283 * calculateProgress()) / 100}
             strokeLinecap="round"
-            className="transition-all duration-1000 ease-linear"
           />
         </svg>
         
         {/* Timer text */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-4xl font-bold text-gray-800 dark:text-white">
             {formatTime(time)}
           </span>
-          {timerType === TIMER_TYPES.POMODORO && (
-            <span className="text-sm text-gray-600 dark:text-gray-400 mt-2 capitalize">
-              {pomodoroPhase} {completedPomodoros > 0 && `(${completedPomodoros})`}
-            </span>
-          )}
         </div>
       </div>
 
-      {/* Countdown Input (only for countdown timer) */}
-      {timerType === TIMER_TYPES.COUNTDOWN && !isRunning && (
-        <div className="flex space-x-2 mb-6">
-          <div>
-            <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">Minutes</label>
-            <input
-              type="number"
-              min="0"
-              max="60"
-              value={inputMinutes}
-              onChange={(e) => setInputMinutes(parseInt(e.target.value) || 0)}
-              className="w-20 p-2 border border-gray-300 dark:border-zinc-600 rounded-md dark:bg-zinc-800"
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">Seconds</label>
-            <input
-              type="number"
-              min="0"
-              max="59"
-              value={inputSeconds}
-              onChange={(e) => setInputSeconds(parseInt(e.target.value) || 0)}
-              className="w-20 p-2 border border-gray-300 dark:border-zinc-600 rounded-md dark:bg-zinc-800"
-            />
-          </div>
-          <div className="self-end">
-            <button
-              onClick={handleSetCountdown}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Set
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Timer Controls */}
       <div className="flex space-x-4">
-        {!isRunning ? (
-          <button
-            onClick={startTimer}
-            className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-          >
-            Start
-          </button>
-        ) : (
-          <button
-            onClick={pauseTimer}
-            className="px-6 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
-          >
-            Pause
-          </button>
-        )}
+        <button
+          onClick={startTimer}
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+        >
+          Start
+        </button>
+        <button
+          onClick={pauseTimer}
+          className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
+        >
+          Pause
+        </button>
         <button
           onClick={resetTimer}
-          className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+          className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
         >
           Reset
         </button>
       </div>
 
-      {/* Pomodoro Info (only for Pomodoro timer) */}
-      {timerType === TIMER_TYPES.POMODORO && (
-        <div className="mt-8 p-4 bg-gray-100 dark:bg-zinc-700 rounded-md max-w-md">
-          <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">Pomodoro Technique</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
-            Work for 25 minutes, then take a 5-minute break. After 4 work sessions, take a longer 15-minute break.
-            This technique helps improve focus and productivity.
-          </p>
+      {/* Countdown Inputs */}
+      {timerType === TIMER_TYPES.COUNTDOWN && (
+        <div className="flex space-x-2 mt-4">
+          <input
+            type="number"
+            value={inputMinutes}
+            onChange={(e) => setInputMinutes(Number(e.target.value))}
+            className="w-16 p-2 border rounded-md"
+            placeholder="Minutes"
+          />
+          <input
+            type="number"
+            value={inputSeconds}
+            onChange={(e) => setInputSeconds(Number(e.target.value))}
+            className="w-16 p-2 border rounded-md"
+            placeholder="Seconds"
+          />
+          <button
+            onClick={handleSetCountdown}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Set
+          </button>
         </div>
       )}
     </div>

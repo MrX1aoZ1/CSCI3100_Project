@@ -9,6 +9,7 @@ import { useToast } from '@/context/ToastContext'; // Add this import
 import { PlusIcon } from '@heroicons/react/24/outline';
 import ErrorBoundary from './ErrorBoundary';
 import { useRef } from 'react';
+import CategoryList from './CategoryList';
 
 // 更新优先级数组，包括'none'
 const priorities = [
@@ -203,35 +204,16 @@ export default function TaskModule() {
         </div>
       )}
 
-      {/* --- Bottom: Two Columns Area --- */}
-      <div className="flex flex-1 overflow-hidden relative">
-        {/* Left Column: Task List */}
-        <div
-          style={{ width: taskListWidth, minWidth: minTaskListWidth, maxWidth: maxTaskListWidth }}
-          className="h-full border-r border-gray-200 dark:border-zinc-700 overflow-hidden flex flex-col"
-        >
+      {/* Task List and Detail */}
+      <div className="flex flex-1">
+        <div className="flex-shrink-0" style={{ width: taskListWidth }}>
           <TaskList />
         </div>
-        {/* Divider - absolutely positioned */}
         <div
-          style={{
-            position: 'absolute',
-            left: Math.max(minTaskListWidth, Math.min(maxTaskListWidth, taskListWidth)) - 4,
-            top: 0,
-            height: '100%',
-            width: 8,
-            zIndex: 20,
-            cursor: 'col-resize',
-            background: showDivider ? 'rgba(59,130,246,0.15)' : 'transparent',
-            borderLeft: showDivider ? '1px solid #3b82f6' : '1px solid transparent',
-            transition: 'background 0.2s, border-color 0.2s',
-          }}
+          className={`w-1 ${showDivider ? 'bg-blue-500' : 'bg-transparent'} cursor-col-resize`}
           onMouseDown={handleMouseDown}
-          onMouseEnter={() => setShowDivider(true)}
-          onMouseLeave={() => { if (!resizing.current.active) setShowDivider(false); }}
         />
-        {/* Right Column: Task Detail */}
-        <div className="h-full flex-1 overflow-y-auto">
+        <div className="flex-1">
           <TaskDetail />
         </div>
       </div>

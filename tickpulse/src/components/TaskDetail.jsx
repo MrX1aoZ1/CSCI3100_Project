@@ -6,8 +6,8 @@ import { taskApi } from '@/context/TaskContext'; // Add this import
 import { useToast } from '@/context/ToastContext'; // Add this import
 import { CheckIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
-export default function TaskDetail() {
-  const { tasks, dispatch, selectedTaskId, categories } = useTasks(); // 从projects更改
+export default function TaskDetail({ task }) {
+  const { tasks, dispatch, selectedTaskId, categories } = useTasks(); // Use useTasks instead of useTaskContext
   const { showSuccess, showError } = useToast(); // Add this line
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -71,26 +71,42 @@ export default function TaskDetail() {
     const { name, value } = e.target;
     setEditForm(prev => ({ ...prev, [name]: value }));
   };
+
+  // 处理分类变更（可选，如果有特殊逻辑）
+  const handleCategoryChange = (e) => {
+    // 可根据需要添加逻辑
+  };
   
   // 处理编辑表单提交
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Update task status if changed
-      if (editForm.status !== selectedTask.status) {
+      // Update task name/content if changed
+      if (editForm.task_name !== selectedTask.task_name || editForm.content !== selectedTask.content) {
+        await taskApi.updateTask(selectedTask.id, {
+          task_name: editForm.task_name,
+          content: editForm.content,
+          deadline: editForm.deadline,
+          priority: editForm.priority,
+          category_name: editForm.category_name,
+        });
+      }
+      // Update status if changed
+      if (editForm.status && editForm.status !== selectedTask.status) {
         await taskApi.updateTaskStatus(selectedTask.id, editForm.status);
       }
-      
       // Update priority if changed
       if (editForm.priority !== selectedTask.priority) {
         await taskApi.updateTaskPriority(selectedTask.id, editForm.priority);
       }
-      
       // Update category if changed
       if (editForm.category_name !== selectedTask.category_name) {
         await taskApi.updateTaskCategory(selectedTask.id, editForm.category_name);
       }
-      
+      // Update deadline if changed
+      if (editForm.deadline !== selectedTask.deadline) {
+        await taskApi.updateTaskDeadline(selectedTask.id, editForm.deadline);
+      }
       dispatch({
         type: 'UPDATE_TASK',
         payload: {
@@ -98,7 +114,6 @@ export default function TaskDetail() {
           updates: editForm
         }
       });
-      
       setIsEditing(false);
       showSuccess('Task updated successfully');
     } catch (error) {
@@ -175,111 +190,95 @@ export default function TaskDetail() {
               分类
             </label>
             <select
-              name="category_name" // 从projectId更改
-              value={editForm.category_name} // 从projectId更改
-              onChange={handleEditChange}
+              name="category_name"
+              value={editForm.category_name}
+              onChange={(e) => {
+                handleEditChange(e);
+                handleCategoryChange(e);
+              }}
               className="w-full p-2 border border-gray-300 dark:border-zinc-600 rounded-md dark:bg-zinc-800"
             >
-              {categories.map(category => ( // 从projects更改
+              {categories.map(category => (
                 <option key={category.id} value={category.id}>{category.name}</option>
               ))}
             </select>
           </div>
           
-          <div className="flex space-x-2 pt-2">
+          <div className="flex space-x-2">
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
+              <CheckIcon className="h-5 w-5 inline-block mr-1" />
               保存
             </button>
             <button
               type="button"
+              className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
               onClick={() => setIsEditing(false)}
-              className="px-4 py-2 bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-zinc-600"
             >
+              <XMarkIcon className="h-5 w-5 inline-block mr-1" />
               取消
             </button>
           </div>
         </form>
       ) : (
-        // 任务详情视图
+        // 任务详情
         <div>
-          <div className="flex justify-between items-start mb-6">
-            <h1 className={`text-xl font-bold ${
-              selectedTask.status === 'completed' // 从completed更改
-                ? 'text-gray-400 dark:text-gray-500 line-through'
-                : 'text-gray-800 dark:text-gray-100'
-            }`}>
-              {selectedTask.task_name} {/* 从title更改 */}
-            </h1>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{selectedTask.task_name}</h2>
             <div className="flex space-x-2">
               <button
-                onClick={handleToggleComplete}
-                className={`p-2 rounded-full ${
-                  selectedTask.status === 'completed' // 从completed更改
-                    ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
-                    : 'bg-gray-100 text-gray-600 dark:bg-zinc-700 dark:text-gray-400'
-                }`}
-              >
-                <CheckIcon className="h-5 w-5" />
-              </button>
-              <button
+                className="p-2 rounded bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200"
                 onClick={() => setIsEditing(true)}
-                className="p-2 bg-gray-100 text-gray-600 dark:bg-zinc-700 dark:text-gray-400 rounded-full hover:bg-gray-200 dark:hover:bg-zinc-600"
+                title="编辑"
               >
                 <PencilIcon className="h-5 w-5" />
               </button>
               <button
+                className="p-2 rounded bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-200"
                 onClick={handleDeleteTask}
-                className="p-2 bg-gray-100 text-gray-600 dark:bg-zinc-700 dark:text-gray-400 rounded-full hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                title="删除"
               >
                 <TrashIcon className="h-5 w-5" />
               </button>
             </div>
           </div>
-          
-          <div className="space-y-4">
-            {selectedTask.deadline && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">截止日期</h3>
-                <p className="text-gray-800 dark:text-gray-200">{selectedTask.deadline}</p>
-              </div>
-            )}
-            
-            {selectedTask.priority !== 'none' && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">优先级</h3>
-                <span className={`inline-block px-2 py-1 text-sm rounded-full ${
-                  selectedTask.priority === 'high' 
-                    ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200'
-                    : selectedTask.priority === 'medium'
-                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200'
-                      : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200'
-                }`}>
-                  {selectedTask.priority}
-                </span>
-              </div>
-            )}
-            
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">分类</h3>
-              <p className="text-gray-800 dark:text-gray-200">
-                {categories.find(c => c.id === selectedTask.category_name)?.name || '未分类'} {/* 从projects和projectId更改 */}
-              </p>
-            </div>
-            
-            {selectedTask.content && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">内容</h3>
-                <div className="prose dark:prose-invert prose-sm max-w-none text-gray-800 dark:text-gray-200">
-                  {selectedTask.content}
-                </div>
-              </div>
-            )}
+          <div className="mb-2">
+            <span className="font-semibold">内容：</span>
+            <span>{selectedTask.content || '无'}</span>
+          </div>
+          <div className="mb-2">
+            <span className="font-semibold">截止日期：</span>
+            <span>{selectedTask.deadline || '无'}</span>
+          </div>
+          <div className="mb-2">
+            <span className="font-semibold">优先级：</span>
+            <span>{selectedTask.priority || '无'}</span>
+          </div>
+          <div className="mb-2">
+            <span className="font-semibold">分类：</span>
+            <span>
+              {categories.find(c => c.id === selectedTask.category_name)?.name || '无'}
+            </span>
+          </div>
+          <div className="flex space-x-2 mt-4">
+            <button
+              className={`px-4 py-2 rounded ${
+                selectedTask.status === 'completed'
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-200 text-gray-800'
+              }`}
+              onClick={handleToggleComplete}
+            >
+              <CheckIcon className="h-5 w-5 inline-block mr-1" />
+              {selectedTask.status === 'completed' ? '已完成' : '标记为完成'}
+            </button>
           </div>
         </div>
       )}
     </div>
   );
 }
+
+

@@ -39,116 +39,93 @@ export default function TaskList() {
   
   // 过滤和排序任务
   useEffect(() => {
-    // Ensure tasks is an array before trying to iterate
-    if (!Array.isArray(tasks)) {
-      console.error('Tasks is not an array:', tasks);
-      setFilteredTasks([]);
-      return;
-    }
-    
     let result = [...tasks];
-    
-    // 根据当前视图过滤任务
-    if (selectedView === 'category') { // 从'project'更改
-      result = result.filter(task => task.category_name === selectedCategoryId); // 从projectId更改
+    if (selectedView === 'category') {
+        result = result.filter(task => task.category_name === selectedCategoryId);
     } else if (selectedView === 'filter') {
-      if (activeFilter === 'today') {
-        const today = new Date().toISOString().split('T')[0];
-        result = result.filter(task => 
-          task.deadline === today && task.status !== 'completed' // 从!task.completed更改
-        );
-      } else if (activeFilter === 'completed') {
-        result = result.filter(task => task.status === 'completed'); // 从task.completed更改
-      } else if (activeFilter === 'all') {
-        // 显示所有任务，不需要过滤
-      }
+        if (activeFilter === 'today') {
+            const today = new Date().toISOString().split('T')[0];
+            result = result.filter(task => task.deadline === today && task.status !== 'completed');
+        } else if (activeFilter === 'completed') {
+            result = result.filter(task => task.status === 'completed');
+        }
     }
-    
-    // 排序任务
-    result.sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-    
     setFilteredTasks(result);
-  }, [tasks, selectedView, selectedCategoryId, activeFilter, sortConfig]); // 从selectedProjectId更改
+}, [tasks, selectedView, selectedCategoryId, activeFilter, sortConfig]); // 从selectedProjectId更改
   
-  // 处理任务选择
+  // Handle task selection
   const handleTaskSelect = (taskId) => {
     dispatch({ type: 'SELECT_TASK', payload: taskId });
   };
   
-  // 处理任务完成状态切换
+  // Handle task completion toggle
   const handleToggleComplete = async (e, taskId) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent task selection when clicking the checkbox
     try {
       const task = tasks.find(t => t.id === taskId);
       if (!task) return;
       
       const newStatus = task.status === 'completed' ? 'pending' : 'completed';
       
+      // Call API to update task status
       await taskApi.updateTaskStatus(taskId, newStatus);
+      
+      // Update local state
       dispatch({ type: 'TOGGLE_TASK', payload: taskId });
-      showSuccess('Task status updated');
+      showSuccess(`Task marked as ${newStatus}`);
     } catch (error) {
       console.error('Failed to update task status:', error);
       showError('Failed to update task status');
     }
   };
   
-  // 处理任务删除
+  // Handle task deletion
   const handleDeleteTask = async (e, taskId) => {
-    e.stopPropagation();
-    if (!taskId) return;
-    
-    try {
-      // First call the API to delete the task
-      await taskApi.deleteTask(taskId);
-      
-      // Then update the local state
-      dispatch({ type: 'DELETE_TASK', payload: taskId });
-      
-      showSuccess('Task deleted successfully');
-    } catch (error) {
-      console.error('Failed to delete task:', error);
-      showError('Failed to delete task');
+    e.stopPropagation(); // Prevent task selection when clicking delete
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      try {
+        // Call API to delete task
+        await taskApi.deleteTask(taskId);
+        
+        // Update local state
+        dispatch({ type: 'DELETE_TASK', payload: taskId });
+        showSuccess('Task deleted successfully');
+      } catch (error) {
+        console.error('Failed to delete task:', error);
+        showError('Failed to delete task');
+      }
     }
   };
-  
-  // 处理排序
-  const requestSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
-  };
-  
-  // Add this useEffect inside the component
-  useEffect(() => {
-    // Ensure tasks is an array before trying to iterate
-    if (!Array.isArray(tasks)) {
-      console.error('Tasks is not an array:', tasks);
-      return; // Exit early if tasks is not an array
-    }
-  }, [tasks, selectedTaskId]);
-  
-  // Check if tasks is valid before rendering
-  if (!Array.isArray(tasks)) {
-    return <div className="p-4 text-center text-gray-500 dark:text-gray-400">Loading tasks...</div>;
-  }
-  
+
+  // Add this filter bar above the task list
   return (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-gray-200 dark:border-zinc-700">
         <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{getViewTitle()}</h2>
+        {/* Filter Bar */}
+        <div className="flex space-x-2 mt-2">
+          {[
+            { key: 'all', label: '所有任务' },
+            { key: 'today', label: '今日任务' },
+            { key: 'completed', label: '已完成任务' }
+          ].map(filter => (
+            <button
+              key={filter.key}
+              onClick={() => {
+                dispatch({ type: 'SET_VIEW', payload: 'filter' });
+                dispatch({ type: 'SET_FILTER', payload: filter.key });
+              }}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                selectedView === 'filter' && activeFilter === filter.key
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-gray-200'
+              }`}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
       </div>
-      
       <div className="flex-1 overflow-y-auto">
         {filteredTasks.length === 0 ? (
           <div className="p-4 text-center text-gray-500 dark:text-gray-400">
