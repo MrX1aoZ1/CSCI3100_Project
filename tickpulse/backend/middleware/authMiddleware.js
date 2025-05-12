@@ -5,6 +5,7 @@ function checkAuthenticated(req, res, next) {
 	res.status(401).json({ message: 'Not authenticated' });
 }
 
+// For backend testing, if user is already logged in and want to login again, they will be redirected to home page
 function checkNotAuthenticated(req, res, next) {
 	if (req.isAuthenticated())
 		return res.status(403).json({ message: 'Already authenticated' });

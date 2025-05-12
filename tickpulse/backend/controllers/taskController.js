@@ -73,7 +73,7 @@ const getAllCategory = async (req, res) => {
             'SELECT DISTINCT category_name FROM category WHERE user_id = ?',
             [req.user.id]
         );
-        console.log("taskallcategory");
+        // console.log("taskallcategory");
         if (categories.length === 0) {  
             return res.status(404).json({ message: 'No categories found' });
         }
