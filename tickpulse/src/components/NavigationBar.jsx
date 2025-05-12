@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { SunIcon, MoonIcon, CalendarDaysIcon, CheckCircleIcon, InboxIcon, PlayIcon, PauseIcon, ArrowPathIcon, ClockIcon, StopIcon } from '@heroicons/react/24/outline';
 import CategoryList from './CategoryList';
 import FilterSelector from   './FilterSelector';
+import { useToast } from '@/context/ToastContext'; // Import useToast
 
 const predefinedFilters = [
   { name: '所有任务', filter: 'all', icon: InboxIcon },
@@ -26,6 +27,7 @@ export default function NavigationBar() {
   const { theme, toggleTheme } = useTheme();
   const { dispatch, selectedView, activeFilter } = useTasks();
   const router = useRouter();
+  const { showInfo } = useToast(); // Get showInfo from useToast
 
   // Timer state
   const [isRunning, setIsRunning] = useState(false);
@@ -35,6 +37,7 @@ export default function NavigationBar() {
   const [customSeconds, setCustomSeconds] = useState(0);
   const timerRef = useRef(null);
   const [progress, setProgress] = useState(100);
+  const audioRef = useRef(null); // Ref for the audio element
 
   // Timer durations in seconds
   const timerDurations = {
@@ -57,6 +60,11 @@ export default function NavigationBar() {
     setIsRunning(false);
     if (timerRef.current) clearInterval(timerRef.current);
     setProgress(timerMode === 'stopwatch' ? 0 : 100);
+
+    // Initialize audio element
+    if (!audioRef.current) {
+      audioRef.current = new Audio('/alert.mp3'); // Assuming alert.mp3 is in the public folder
+    }
   }, [timerMode, customMinutes, customSeconds]);
 
   // Update progress for animation
@@ -92,6 +100,14 @@ export default function NavigationBar() {
             if (prevTime <= 1) {
               clearInterval(timerRef.current);
               setIsRunning(false);
+              // Play sound and show notification for pomodoro and countdown
+              if (timerMode === 'pomodoro' || timerMode === 'countdown') {
+                if (audioRef.current) {
+                  audioRef.current.play().catch(error => console.error("Error playing sound:", error));
+                }
+                const modeLabel = TIMER_MODES.find(m => m.key === timerMode)?.label || 'Timer';
+                showInfo(`${modeLabel} has finished!`);
+              }
               return 0;
             }
             return prevTime - 1;

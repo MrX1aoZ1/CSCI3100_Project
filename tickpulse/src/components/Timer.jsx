@@ -22,10 +22,15 @@ export default function Timer() {
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
   const intervalRef = useRef(null);
   const startTimeRef = useRef(null);
+  const audioRef = useRef(null); // Ref for the audio element
 
-  // Handle timer type change
+  // Handle timer type change & Initialize audio
   useEffect(() => {
     resetTimer();
+    // Initialize audio element
+    if (!audioRef.current) {
+      audioRef.current = new Audio('/alert.mp3'); // Assuming alert.mp3 is in the public folder
+    }
   }, [timerType]);
 
   // Timer logic
@@ -60,6 +65,11 @@ export default function Timer() {
   const handleTimerComplete = () => {
     clearInterval(intervalRef.current);
     setIsRunning(false);
+
+    // Play sound
+    if (audioRef.current && (timerType === TIMER_TYPES.POMODORO || timerType === TIMER_TYPES.COUNTDOWN)) {
+      audioRef.current.play().catch(error => console.error("Error playing sound:", error));
+    }
 
     if (timerType === TIMER_TYPES.POMODORO) {
       if (pomodoroPhase === 'work') {
@@ -114,6 +124,11 @@ export default function Timer() {
 
   const handleSetCountdown = () => {
     setTime(inputMinutes * 60 + inputSeconds);
+    // Ensure timer is reset if it was running
+    if (isRunning) {
+        setIsRunning(false);
+        clearInterval(intervalRef.current);
+    }
   };
 
   // Format time as MM:SS

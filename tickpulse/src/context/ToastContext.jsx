@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback } from 'react';
 import Toast from '@/components/ui/Toast';
+import { v4 as uuidv4 } from 'uuid'; // Import uuid
 
 const ToastContext = createContext();
 
@@ -10,7 +11,7 @@ export function ToastProvider({ children }) {
   
   // Add a new toast
   const addToast = useCallback((message, type = 'error', duration = 5000) => {
-    const id = Date.now().toString();
+    const id = uuidv4(); // Use uuidv4 for unique IDs
     setToasts(prev => [...prev, { id, message, type, duration }]);
     return id;
   }, []);
