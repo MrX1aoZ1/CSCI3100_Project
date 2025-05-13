@@ -10,6 +10,13 @@ import NavigationBar from '@/components/NavigationBar';
 import Timer from '@/components/Timer';
 import withAuth from '@/components/WithAuth';
 
+/**
+ * TimerPage component serves as the main page for the timer feature.
+ * It wraps the Timer component with necessary context providers (Theme, Toast, Auth, Task)
+ * and includes the NavigationBar.
+ * This page is protected and requires authentication via the `withAuth` HOC.
+ * @returns {JSX.Element} The rendered timer page.
+ */
 function TimerPage() {
   return (
     <ThemeProvider>

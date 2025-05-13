@@ -1,3 +1,10 @@
+/**
+ * LoadingSpinner component displays an animated spinner.
+ * @param {object} props - The component props.
+ * @param {'small' | 'medium' | 'large'} [props.size='medium'] - The size of the spinner.
+ * @param {'blue' | 'gray' | 'white'} [props.color='blue'] - The color of the spinner.
+ * @returns {JSX.Element} The rendered loading spinner.
+ */
 export default function LoadingSpinner({ size = 'medium', color = 'blue' }) {
   const sizeClasses = {
     small: 'h-4 w-4 border-2',

@@ -5,40 +5,53 @@ import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useState, useEffect } from 'react';
 
+/**
+ * LoginPage component.
+ * Renders the login form and handles user authentication.
+ */
 export default function LoginPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // State to manage loading status during login
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState(''); // State for email input
+  const [password, setPassword] = useState(''); // State for password input
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
-  const [formError, setFormError] = useState(undefined);
+  const [formError, setFormError] = useState(undefined); // State for displaying form errors
 
+  // Effect to redirect to home page if user is already logged in (token exists)
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (token) {
       router.push('/');
     }
-  }, []);
+  }, [router]); // Dependency: router
 
+  /**
+   * Handles the form submission for login.
+   * Validates inputs, sends login request to the server, and handles response.
+   * @param {React.FormEvent<HTMLFormElement>} event - The form submission event.
+   */
   const submitHandler = useCallback(
     async (event) => {
-      event.preventDefault();
-      setFormError(undefined);
+      event.preventDefault(); // Prevent default form submission
+      setFormError(undefined); // Clear previous errors
 
+      // Validate email
       if (!email) {
-        setEmailError("Email cannot be empty");
+        setFormError("Email cannot be empty"); // setEmailError was used here, changed to setFormError for consistency
         return;
       }
 
+      // Validate password
       if (!password) {
         setFormError("Password cannot be empty");
         return;
       }
 
-      setIsLoading(true);
+      setIsLoading(true); // Set loading state
       try {
+        // Send login request to the backend
         const response = await fetch(
           'http://localhost:3000/auth/login',
           {
@@ -48,8 +61,9 @@ export default function LoginPage() {
           }
         );
 
-        const data = await response.json().catch(() => undefined);
+        const data = await response.json().catch(() => undefined); // Parse JSON response
 
+        // Handle specific error statuses
         if (response.status === 401) {
           setIsLoading(false);
           setFormError("User not registered, please register first");
@@ -61,29 +75,34 @@ export default function LoginPage() {
           return;
         }
 
+        // Handle server errors (5xx)
         if (500 <= response.status && response.status < 600) {
           setIsLoading(false);
           setFormError(
             "Server error, please try again later"
           );
+          return; // Added return
         }
 
+        // Handle other non-ok responses
         if (!response.ok) {
           setIsLoading(false);
-          setFormError("Unknown error, please try again later");
+          setFormError(data?.message || "Unknown error, please try again later"); // Use message from data if available
           return;
         }
 
+        // On successful login, store access token and redirect
         localStorage.setItem('accessToken', data.accessToken);
-        // localStorage.setItem('refreshToken', data.refreshToken);
+        // localStorage.setItem('refreshToken', data.refreshToken); // Potentially for refresh token functionality
         router.push('/');
 
       } catch (error) {
+        // Handle network or other unexpected errors
         setIsLoading(false);
         setFormError("Server error, please try again later");
       }
     },
-    [email, password, router],
+    [email, password, router], // Dependencies for useCallback
   );
 
 
@@ -91,14 +110,14 @@ export default function LoginPage() {
     <div className="min-h-screen bg-stone-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
-          {/* Title */}
+          {/* Page Title */}
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           </div>
 
           {/* Login Form */}
           <form className="mt-8 space-y-6" onSubmit={submitHandler}>
-            {/* Email */}
+            {/* Email Input Field */}
             <div className="relative">
               <FiMail className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
@@ -108,27 +127,29 @@ export default function LoginPage() {
                 value={email}
                 onChange={(event) => {
                   setEmail(event.target.value);
+                  if (formError) setFormError(undefined); // Clear error on input change
                 }}
               />
             </div>
 
-            {/* Password */}
+            {/* Password Input Field */}
             <div className="relative">
               <button
                 type="button"
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-500"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
               >
                 {showPassword ? <FiEyeOff /> : <FiEye />}
               </button>
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? "text" : "password"} // Dynamically set input type
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                 placeholder="Password"
                 value={password}
                 onChange={(event) => {
                   setPassword(event.target.value);
-                }} 
+                  if (formError) setFormError(undefined); // Clear error on input change
+                }}
               />
             </div>
 
@@ -136,12 +157,12 @@ export default function LoginPage() {
             <button
               type="submit"
               className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
-              disabled={isLoading}
+              disabled={isLoading} // Disable button when loading
             >
               {isLoading ? "Login..." : "Login"}
             </button>
 
-            {/* Register Link */}
+            {/* Link to Registration Page */}
             <div className="text-center mt-4">
               <p className="text-sm text-gray-600">
                 No account?{" "}
@@ -155,6 +176,7 @@ export default function LoginPage() {
               </p>
             </div>
 
+            {/* Display Form Errors */}
             <p className="mx-6 mb-4 text-center text-red-500">
               {formError ?? ''}
             </p>

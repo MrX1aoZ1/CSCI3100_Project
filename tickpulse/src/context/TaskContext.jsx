@@ -9,83 +9,128 @@ const API_BASE_URL = 'http://localhost:3000';
 
 
 const TaskContext = createContext();
+
+/**
+ * @typedef {object} TaskState
+ * @property {Array<object>} tasks - The list of tasks.
+ * @property {Array<object>} projects - The list of projects.
+ * @property {Array<object>} categories - The list of categories.
+ * @property {string|null} selectedTaskId - The ID of the currently selected task.
+ * @property {string|null} selectedProjectId - The ID of the currently selected project.
+ * @property {string|null} selectedCategoryId - The ID of the currently selected category.
+ * @property {string} selectedView - The current view type ('project', 'filter', 'category').
+ * @property {string} activeFilter - The currently active filter ('all', 'today', 'completed').
+ */
+
+/**
+ * @typedef {object} TaskContextProps
+ * @property {TaskState} state - The current state of tasks and related data.
+ * @property {Function} dispatch - The dispatch function to update the state.
+ * @property {Function} refreshTasks - Function to refresh tasks from the backend.
+ * @property {object} taskApi - API utility for task-related operations.
+ */
+
+/**
+ * Provides task-related state and actions to its children components.
+ * Manages tasks, projects, categories, and UI selections.
+ * Handles data fetching, local storage persistence, and API interactions.
+ * @param {object} props - The component props.
+ * @param {React.ReactNode} props.children - The child components to be wrapped by the provider.
+ * @returns {JSX.Element} The TaskProvider component.
+ */
 export function TaskProvider({ children }) {
   const [state, dispatch] = useReducer(taskReducer, initialState);
-  const { showError } = useToast();
+  const { showError } = useToast(); // Hook for displaying error notifications
   
-  // Load state from localStorage on mount
+  // Effect to load state from localStorage on component mount
   useEffect(() => {
-    const savedState = loadState();
+    const savedState = loadState(); // Attempt to load saved state from localStorage
     if (savedState) {
-      dispatch({ type: 'HYDRATE_STATE', payload: savedState });
+      dispatch({ type: 'HYDRATE_STATE', payload: savedState }); // Restore saved state
     }
     
-    // Fetch tasks from the backend when component mounts
+    /**
+     * Fetches initial tasks and categories from the backend.
+     * This is typically done when the application loads or user logs in.
+     */
     const fetchInitialData = async () => {
       try {
-        // Fetch tasks
+        // Fetch tasks from the API
         const tasks = await taskApi.getTasks();
         if (Array.isArray(tasks)) {
-          dispatch({ type: 'SET_TASKS', payload: tasks });
+          dispatch({ type: 'SET_TASKS', payload: tasks }); // Update state with fetched tasks
         }
         
-        // Fetch categories
+        // Fetch categories from the API
         const categories = await taskApi.getAllCategories();
         if (Array.isArray(categories)) {
+          // Transform categories to a consistent format
           const transformedCategories = categories.map(cat => ({
-            id: cat.category_name || cat.category_id?.toString() || 'unnamed',
+            id: cat.category_name || cat.category_id?.toString() || `unnamed-${uuidv4()}`, // Ensure unique ID
             name: cat.category_name || 'Unnamed Category'
           }));
           
+          // Ensure 'Inbox' category exists
           if (!transformedCategories.find(c => c.id === 'inbox')) {
             transformedCategories.unshift({ id: 'inbox', name: 'Inbox' });
           }
           
           dispatch({
             type: 'SET_CATEGORIES',
-            payload: transformedCategories
+            payload: transformedCategories // Update state with fetched categories
           });
         }
       } catch (error) {
         console.error('Failed to fetch initial data:', error);
-        showError('Failed to load tasks and categories');
+        showError('Failed to load tasks and categories'); // Display error to user
       }
     };
     
-    // Check if user is authenticated before fetching data
+    // Check if user is authenticated (token exists) before fetching data
     const token = localStorage.getItem('accessToken');
     if (token) {
-      fetchInitialData();
+      fetchInitialData(); // Fetch data if authenticated
     }
-  }, []);
+  }, [showError]); // Dependency: showError (though typically stable, good practice)
 
-  // Save state to localStorage when it changes
+  // Effect to save state to localStorage whenever the state changes
   useEffect(() => {
-    saveState(state);
-  }, [state]);
+    saveState(state); // Persist current state to localStorage
+  }, [state]); // Dependency: state
   
-  // Function to refresh tasks
+  /**
+   * Function to refresh the list of tasks from the backend.
+   * Useful after operations that might change tasks on the server outside of direct client actions.
+   */
   const refreshTasks = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      if (!token) return;
+      if (!token) return; // Do not attempt if not authenticated
       
-      const tasks = await taskApi.getTasks();
+      const tasks = await taskApi.getTasks(); // Fetch latest tasks
       if (Array.isArray(tasks)) {
-        dispatch({ type: 'SET_TASKS', payload: tasks });
+        dispatch({ type: 'SET_TASKS', payload: tasks }); // Update state with refreshed tasks
       }
     } catch (error) {
       console.error('Failed to refresh tasks:', error);
+      showError('Failed to refresh tasks'); // Display error to user
     }
   };
   
   return (
+    // Provide task state, dispatch function, and refreshTasks function to consuming components
     <TaskContext.Provider value={{ ...state, dispatch, refreshTasks }}>
       {children}
     </TaskContext.Provider>
   );
 }
 
+/**
+ * Custom hook to access the TaskContext.
+ * Provides an easy way for components to consume task-related state and actions.
+ * @throws {Error} If used outside of a TaskProvider.
+ * @returns {TaskContextProps} The task context value.
+ */
 export function useTasks() {
   const context = useContext(TaskContext);
   if (context === undefined) {
@@ -93,7 +138,8 @@ export function useTasks() {
   }
   return context;
 }
-// Add the fetchWithAuth function definition
+
+
 async function fetchWithAuth(endpoint, options = {}) {
   const token = localStorage.getItem('accessToken');
   
@@ -130,65 +176,81 @@ async function fetchWithAuth(endpoint, options = {}) {
   }
 }
 
+/**
+ * @namespace taskApi
+ * @description An object containing functions for interacting with the task-related backend API endpoints.
+ */
 export const taskApi = {
   getTasks: async () => fetchWithAuth('/api/tasks'),
   getTaskById: async (id) => fetchWithAuth(`/api/tasks/${id}`),
   createTask: async (taskData) =>
     fetchWithAuth('/api/tasks', {
       method: 'POST',
-      body: JSON.stringify({
-        task_name: taskData.title,
-        content: taskData.content,
-        status: taskData.status || 'pending',
-        deadline: taskData.deadline,
-        priority: taskData.priority || 'low',
-        category_name: taskData.categoryName
-      }),
+      body: JSON.stringify(taskData),
     }),
-  deleteTask: async (id) => {
-    try {
-      const response = await fetchWithAuth(`/api/tasks/${id}`, {
-        method: 'DELETE'
-      });
-      return response;
-    } catch (error) {
-      console.error('Delete task error:', error);
-      throw error;
-    }
-  },
   updateTask: async (id, updates) =>
     fetchWithAuth(`/api/tasks/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(updates)
+      body: JSON.stringify(updates),
     }),
+  deleteTask: async (id) =>
+    fetchWithAuth(`/api/tasks/${id}`, { method: 'DELETE' }),
   updateTaskStatus: async (id, status) =>
     fetchWithAuth(`/api/tasks/${id}/status`, {
       method: 'PUT',
-      body: JSON.stringify({ status })
+      body: JSON.stringify({ status }),
     }),
   updateTaskPriority: async (id, priority) =>
     fetchWithAuth(`/api/tasks/${id}/priority`, {
       method: 'PUT',
-      body: JSON.stringify({ priority })
+      body: JSON.stringify({ priority }),
     }),
-  // Category-related API functions
-  getAllCategories: async () => fetchWithAuth('/api/tasks/category'),
-  createCategory: async (categoryName) => 
-    fetchWithAuth('/api/tasks/category', {
-      method: 'POST',
-      body: JSON.stringify({ category_name: categoryName })
+  updateTaskDeadline: async (id, deadline) =>
+    fetchWithAuth(`/api/tasks/${id}/deadline`, {
+      method: 'PUT',
+      body: JSON.stringify({ deadline }),
     }),
   updateTaskCategory: async (id, category_name) =>
     fetchWithAuth(`/api/tasks/${id}/category`, {
       method: 'PUT',
-      body: JSON.stringify({ category_name })
+      body: JSON.stringify({ category_name }),
     }),
-  getTasksByCategory: async (categoryName) =>
-    fetchWithAuth(`/api/tasks/category/${categoryName}`)
+  updateTaskContent: async (id, content) =>
+    fetchWithAuth(`/api/tasks/${id}/content`, { // Corrected path from /tasks to /api/tasks for consistency
+      method: 'PUT',
+      body: JSON.stringify({ content }),
+    }),
+
+  // Category related API calls
+  getAllCategories: async () => {
+    try {
+      return await fetchWithAuth('/api/tasks/category');
+    } catch (error) {
+      // Check if it's the specific 404 error "No categories found"
+      if (error.message && error.message.includes('404') && error.message.includes('No categories found')) {
+        console.warn('API returned 404 for categories (No categories found), treating as empty list.');
+        return []; // Return an empty array if no categories are found for the user
+      }
+      // For any other error, re-throw it to be handled by the caller
+      console.error('Error fetching categories:', error);
+      throw error;
+    }
+  },
+  createCategory: async (categoryName) =>
+    fetchWithAuth('/api/tasks/category', { // Changed to match backend route
+      method: 'POST',
+      body: JSON.stringify({ category_name: categoryName }),
+    }),
+  updateCategory: async (id, categoryName) =>
+    fetchWithAuth(`/api/tasks/category/${id}`, { // Changed to match backend route
+      method: 'PUT',
+      body: JSON.stringify({ category_name: categoryName }),
+    }),
+  deleteCategory: async (id) =>
+    fetchWithAuth(`/api/tasks/category/${id}`, { method: 'DELETE' }), // Changed to match backend route
 };
 
-// --- Initial State ---
-// Updated to match database schema
+// Initial state for the reducer
 const initialState = {
   tasks: [],
   categories: [{ id: 'inbox', name: 'Inbox' }], // Changed from projects to categories

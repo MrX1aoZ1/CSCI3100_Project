@@ -6,6 +6,11 @@ import { taskApi } from '@/context/TaskContext';
 import { useToast } from '@/context/ToastContext';
 import { PlusIcon, PencilIcon, TrashIcon, FolderIcon } from '@heroicons/react/24/outline';
 
+/**
+ * @component CategoryList
+ * @description Component for displaying and managing task categories.
+ * Allows users to view, add, edit, delete, and select categories.
+ */
 export default function CategoryList() {
   const { categories = [], dispatch, selectedCategoryId, selectedView } = useTasks();
   const { showSuccess, showError } = useToast();
@@ -20,6 +25,11 @@ export default function CategoryList() {
     // eslint-disable-next-line
   }, []);
 
+  /**
+   * @function fetchCategories
+   * @description Fetches all categories from the API and updates the state.
+   * Transforms fetched categories and ensures 'Inbox' category is present.
+   */
   const fetchCategories = async () => {
     try {
       setIsLoading(true);
@@ -38,17 +48,34 @@ export default function CategoryList() {
         });
       }
     } catch (error) {
+      console.error('Error fetching categories:', error);
+      // If no categories exist yet, just use the default Inbox
+      dispatch({
+        type: 'SET_CATEGORIES',
+        payload: [{ id: 'inbox', name: 'Inbox' }]
+      });
       showError('Failed to fetch categories');
     } finally {
       setIsLoading(false);
     }
   };
 
+  /**
+   * @function handleSelectCategory
+   * @description Handles the selection of a category.
+   * Updates the selected category and view in the global state.
+   * @param {string} categoryId - The ID of the category to select.
+   */
   const handleSelectCategory = (categoryId) => {
     dispatch({ type: 'SELECT_CATEGORY', payload: categoryId });
     dispatch({ type: 'SET_VIEW', payload: 'category' });
   };
 
+  /**
+   * @function handleAddCategory
+   * @description Handles the creation of a new category.
+   * Sends a request to the API and updates the local state upon success.
+   */
   const handleAddCategory = async () => {
     if (!newCategoryName.trim()) return;
     try {
@@ -82,6 +109,14 @@ export default function CategoryList() {
     }
   };
 
+  /**
+   * @function handleDeleteCategory
+   * @description Handles the deletion of a category.
+   * Prevents deletion of the 'Inbox' category.
+   * Prompts for confirmation before deleting.
+   * @param {Event} e - The event object.
+   * @param {string} categoryId - The ID of the category to delete.
+   */
   const handleDeleteCategory = async (e, categoryId) => {
     e.stopPropagation();
     if (categoryId === 'inbox') {
@@ -98,6 +133,14 @@ export default function CategoryList() {
     }
   };
 
+  /**
+   * @function handleStartEdit
+   * @description Initiates the editing mode for a category.
+   * Prevents editing of the 'Inbox' category.
+   * @param {Event} e - The event object.
+   * @param {string} categoryId - The ID of the category to edit.
+   * @param {string} name - The current name of the category.
+   */
   const handleStartEdit = (e, categoryId, name) => {
     e.stopPropagation();
     if (categoryId === 'inbox') {
@@ -108,6 +151,12 @@ export default function CategoryList() {
     setEditName(name);
   };
 
+  /**
+   * @function handleSaveEdit
+   * @description Saves the edited category name.
+   * Updates the category name in the local state.
+   * @param {Event} e - The event object.
+   */
   const handleSaveEdit = async (e) => {
     e.stopPropagation();
     if (!editName.trim() || !editingId) return;
@@ -130,6 +179,11 @@ export default function CategoryList() {
     }
   };
 
+  /**
+   * @function handleCancelEdit
+   * @description Cancels the category editing mode.
+   * @param {Event} e - The event object.
+   */
   const handleCancelEdit = (e) => {
     e.stopPropagation();
     setEditingId(null);
@@ -218,9 +272,4 @@ export default function CategoryList() {
     </div>
   );
 }
-
-updateTaskCategory: async (id, category_name) =>
-  fetchWithAuth(`/tasks/${id}/category`, {
-    method: 'PUT',
-    body: JSON.stringify({ category_name: category }), // Must be category_name!
-  })
+ 

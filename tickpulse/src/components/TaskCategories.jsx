@@ -10,6 +10,12 @@ const categories = [
   { id: 'abandoned', name: 'Abandoned' }
 ];
 
+/**
+ * TaskCategories component displays a list of predefined task categories.
+ * It highlights the active category based on the `activeCategory` state from `TaskContext`.
+ * Note: This component currently only displays categories; selection logic might be handled elsewhere or intended for future implementation.
+ * @returns {JSX.Element} The rendered list of task category buttons.
+ */
 export default function TaskCategories() {
   const { activeCategory } = useTasks();
 

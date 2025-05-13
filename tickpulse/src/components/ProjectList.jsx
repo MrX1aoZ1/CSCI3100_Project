@@ -4,6 +4,13 @@ import { useState, useEffect } from 'react';
 import { useTasks } from '@/context/TaskContext';
 import { FolderIcon, PlusIcon, TrashIcon, PencilIcon, ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
+/**
+ * @component ProjectList
+ * @description Component for displaying and managing projects.
+ * Allows users to view, add, edit, delete, and select projects.
+ * Also handles drag-and-drop of tasks to projects.
+ * Note: This component might be deprecated or replaced by CategoryList.
+ */
 export default function ProjectList() {
   const { projects, selectedProjectId, dispatch, selectedView } = useTasks();
   const [newProjectName, setNewProjectName] = useState('');
@@ -17,6 +24,11 @@ export default function ProjectList() {
     setIsClient(true);
   }, []);
 
+  /**
+   * @function handleAddProject
+   * @description Handles the creation of a new project.
+   * Dispatches an action to add the project to the global state.
+   */
   const handleAddProject = () => {
     const trimmedName = newProjectName.trim();
     if (trimmedName) {
@@ -25,12 +37,25 @@ export default function ProjectList() {
     }
   };
 
+  /**
+   * @function handleAddProjectKeyDown
+   * @description Handles the 'Enter' key press for adding a project.
+   * @param {Event} e - The keyboard event object.
+   */
   const handleAddProjectKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleAddProject();
     }
   };
 
+  /**
+   * @function handleDeleteProject
+   * @description Handles the deletion of a project.
+   * Prevents deletion of the 'Inbox' project.
+   * Prompts for confirmation before deleting.
+   * @param {Event} e - The event object.
+   * @param {string} projectId - The ID of the project to delete.
+   */
    const handleDeleteProject = (e, projectId) => {
      e.stopPropagation();
      if (projectId === 'inbox') {
@@ -42,12 +67,25 @@ export default function ProjectList() {
      }
    };
 
+  /**
+   * @function handleStartEdit
+   * @description Initiates the editing mode for a project.
+   * @param {Event} e - The event object.
+   * @param {object} project - The project object to edit.
+   */
     const handleStartEdit = (e, project) => {
      e.stopPropagation();
      setEditingProjectId(project.id);
      setEditingName(project.name);
    };
 
+  /**
+   * @function handleSaveEdit
+   * @description Saves the edited project name.
+   * Dispatches an action to rename the project in the global state.
+   * @param {Event} e - The event object.
+   * @param {string} projectId - The ID of the project being edited.
+   */
    const handleSaveEdit = (e, projectId) => {
       e.stopPropagation();
      if (editingName.trim() && projectId && projectId !== 'inbox') {
@@ -57,11 +95,21 @@ export default function ProjectList() {
      setEditingName('');
    };
 
+  /**
+   * @function handleCancelEdit
+   * @description Cancels the project editing mode.
+   */
    const handleCancelEdit = () => {
      setEditingProjectId(null);
      setEditingName('');
    };
 
+  /**
+   * @function handleEditKeyDown
+   * @description Handles keyboard events ('Enter', 'Escape') during project name editing.
+   * @param {Event} e - The keyboard event object.
+   * @param {string} projectId - The ID of the project being edited.
+   */
    const handleEditKeyDown = (e, projectId) => {
      if (e.key === 'Enter') {
        handleSaveEdit(e, projectId);
@@ -71,7 +119,12 @@ export default function ProjectList() {
    };
 
 
-  // Update project selection to use separate actions
+  /**
+   * @function handleSelectProject
+   * @description Handles the selection of a project.
+   * Updates the selected project and view in the global state.
+   * @param {string} projectId - The ID of the project to select.
+   */
   const handleSelectProject = (projectId) => {
     if (editingProjectId !== projectId) {
       dispatch({ type: 'SET_VIEW', payload: 'project' });
@@ -81,6 +134,13 @@ export default function ProjectList() {
 
 
   // --- Drag and Drop Handlers for Projects ---
+  /**
+   * @function handleDragOver
+   * @description Handles the drag over event on a project item.
+   * Prevents default behavior to allow dropping. Sets visual feedback.
+   * @param {Event} e - The drag event object.
+   * @param {string} projectId - The ID of the project being dragged over.
+   */
   const handleDragOver = (e, projectId) => {
     e.preventDefault(); // Necessary to allow dropping
     if (projectId !== 'inbox') { // Optional: Prevent dropping directly on 'Inbox' if desired, or handle differently
@@ -88,10 +148,23 @@ export default function ProjectList() {
     }
   };
 
+  /**
+   * @function handleDragLeave
+   * @description Handles the drag leave event on a project item.
+   * Clears visual feedback.
+   * @param {Event} e - The drag event object.
+   */
   const handleDragLeave = (e) => {
     setDragOverProjectId(null); // Clear visual feedback
   };
 
+  /**
+   * @function handleDrop
+   * @description Handles the drop event on a project item.
+   * Moves the dragged task to the target project.
+   * @param {Event} e - The drop event object.
+   * @param {string} targetProjectId - The ID of the project where the task is dropped.
+   */
   const handleDrop = (e, targetProjectId) => {
     e.preventDefault();
     setDragOverProjectId(null); // Clear visual feedback

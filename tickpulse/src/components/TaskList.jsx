@@ -6,6 +6,12 @@ import { useState, useEffect } from 'react';
 import { taskApi } from '@/context/TaskContext'; // Import taskApi
 import { useToast } from '@/context/ToastContext'; // Import useToast
 
+/**
+ * @component TaskList
+ * @description Component for displaying a list of tasks.
+ * Filters and sorts tasks based on the selected view (category or filter).
+ * Allows users to select, complete, and delete tasks.
+ */
 export default function TaskList() {
   const { 
     tasks, 
@@ -13,31 +19,35 @@ export default function TaskList() {
     selectedTaskId, 
     selectedView, 
     activeFilter, 
-    selectedCategoryId, // 从selectedProjectId更改
-    categories // 从projects更改
+    selectedCategoryId, // Changed from selectedProjectId
+    categories // Changed from projects
   } = useTasks();
   
   const { showSuccess, showError } = useToast(); // Add useToast hook
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
   
-  // 获取当前视图的标题
+  /**
+   * @function getViewTitle
+   * @description Gets the title for the current view (e.g., category name or filter name).
+   * @returns {string} The title for the current view.
+   */
   const getViewTitle = () => {
-    if (selectedView === 'category') { // 从'project'更改
-      const category = categories.find(c => c.id === selectedCategoryId); // 从project更改
+    if (selectedView === 'category') { // Changed from 'project'
+      const category = categories.find(c => c.id === selectedCategoryId); // Changed from project
       return category ? category.name : 'Tasks';
     } else if (selectedView === 'filter') {
       switch (activeFilter) {
-        case 'all': return 'All Mission';
-        case 'today': return 'Today Mission';
-        case 'completed': return 'Finished Mission';
+        case 'all': return 'All Tasks'; // Translated from 'All Mission'
+        case 'today': return 'Today\'s Tasks'; // Translated from 'Today Mission'
+        case 'completed': return 'Completed Tasks'; // Translated from 'Finished Mission'
         default: return 'Tasks';
       }
     }
     return 'Tasks';
   };
   
-  // 过滤和排序任务
+  // Filter and sort tasks
   useEffect(() => {
     let result = [...tasks];
     if (selectedView === 'category') {
@@ -50,15 +60,28 @@ export default function TaskList() {
             result = result.filter(task => task.status === 'completed');
         }
     }
+    // Add sorting logic here if needed, based on sortConfig
+    // Example: result.sort((a, b) => { ... });
     setFilteredTasks(result);
-}, [tasks, selectedView, selectedCategoryId, activeFilter, sortConfig]); // 从selectedProjectId更改
+}, [tasks, selectedView, selectedCategoryId, activeFilter, sortConfig]); // Changed from selectedProjectId
   
-  // Handle task selection
+  /**
+   * @function handleTaskSelect
+   * @description Handles the selection of a task.
+   * Dispatches an action to update the selected task in the global state.
+   * @param {string} taskId - The ID of the task to select.
+   */
   const handleTaskSelect = (taskId) => {
     dispatch({ type: 'SELECT_TASK', payload: taskId });
   };
   
-  // Handle task completion toggle
+  /**
+   * @function handleToggleComplete
+   * @description Toggles the completion status of a task.
+   * Calls the API to update the task status and updates the local state.
+   * @param {Event} e - The event object.
+   * @param {string} taskId - The ID of the task to toggle.
+   */
   const handleToggleComplete = async (e, taskId) => {
     e.stopPropagation(); // Prevent task selection when clicking the checkbox
     try {
@@ -79,7 +102,13 @@ export default function TaskList() {
     }
   };
   
-  // Handle task deletion
+  /**
+   * @function handleDeleteTask
+   * @description Handles the deletion of a task.
+   * Prompts for confirmation, calls the API, and updates local state.
+   * @param {Event} e - The event object.
+   * @param {string} taskId - The ID of the task to delete.
+   */
   const handleDeleteTask = async (e, taskId) => {
     e.stopPropagation(); // Prevent task selection when clicking delete
     if (window.confirm('Are you sure you want to delete this task?')) {
@@ -105,9 +134,9 @@ export default function TaskList() {
         {/* Filter Bar */}
         <div className="flex space-x-2 mt-2">
           {[
-            { key: 'all', label: 'All Mission' },
-            { key: 'today', label: 'Today Mission' },
-            { key: 'completed', label: 'Finished Mission' }
+            { key: 'all', label: 'All Tasks' }, // Translated
+            { key: 'today', label: 'Today\'s Tasks' }, // Translated
+            { key: 'completed', label: 'Completed Tasks' } // Translated
           ].map(filter => (
             <button
               key={filter.key}
@@ -148,20 +177,20 @@ export default function TaskList() {
                     <button
                       onClick={(e) => handleToggleComplete(e, task.id)}
                       className={`mt-0.5 flex-shrink-0 h-5 w-5 rounded-full border ${
-                        task.status === 'completed' // 从task.completed更改
+                        task.status === 'completed' // Changed from task.completed
                           ? 'bg-green-500 border-green-500 text-white'
                           : 'border-gray-300 dark:border-zinc-600'
                       } flex items-center justify-center`}
                     >
-                      {task.status === 'completed' && <CheckIcon className="h-3 w-3" />} {/* 从task.completed更改 */}
+                      {task.status === 'completed' && <CheckIcon className="h-3 w-3" />} {/* Changed from task.completed */}
                     </button>
                     <div>
                       <h3 className={`text-sm font-medium ${
-                        task.status === 'completed' // 从task.completed更改
+                        task.status === 'completed' // Changed from task.completed
                           ? 'text-gray-400 dark:text-gray-500 line-through'
                           : 'text-gray-800 dark:text-gray-200'
                       }`}>
-                        {task.task_name} {/* 从task.title更改 */}
+                        {task.task_name} {/* Changed from task.title */}
                       </h3>
                       {task.deadline && (
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">

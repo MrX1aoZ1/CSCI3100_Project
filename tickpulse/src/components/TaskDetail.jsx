@@ -6,35 +6,42 @@ import { taskApi } from '@/context/TaskContext'; // Add this import
 import { useToast } from '@/context/ToastContext'; // Add this import
 import { CheckIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
+/**
+ * @component TaskDetail
+ * @description Component for displaying and editing the details of a selected task.
+ * Allows users to view task information, edit fields, mark as complete, and delete the task.
+ * @param {object} props - The component's props.
+ * @param {object} [props.task] - The task object (though typically fetched from context).
+ */
 export default function TaskDetail({ task }) {
   const { tasks, dispatch, selectedTaskId, categories } = useTasks(); // Use useTasks instead of useTaskContext
   const { showSuccess, showError } = useToast(); // Add this line
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
-    task_name: '', // 从title更改
+    task_name: '', // Changed from title
     content: '',
     deadline: '',
     priority: 'none',
-    category_name: 'inbox', // 从projectId更改
+    category_name: 'inbox', // Changed from projectId
   });
   
-  // 获取选中的任务
+  // Get the selected task
   const selectedTask = tasks && tasks.find ? tasks.find(task => task.id === selectedTaskId) : null;
   
-  // 当选中的任务改变时，更新编辑表单
+  // When the selected task changes, update the edit form
   useEffect(() => {
     if (selectedTask) {
       setEditForm({
-        task_name: selectedTask.task_name || '', // 从title更改
+        task_name: selectedTask.task_name || '', // Changed from title
         content: selectedTask.content || '',
         deadline: selectedTask.deadline || '',
         priority: selectedTask.priority || 'none',
-        category_name: selectedTask.category_name || 'inbox', // 从projectId更改
+        category_name: selectedTask.category_name || 'inbox', // Changed from projectId
       });
     }
   }, [selectedTask]);
   
-  // 如果没有选中任务，显示空白状态
+  // If no task is selected, display a placeholder message
   if (!selectedTask) {
     return (
       <div className="flex-1 flex items-center justify-center p-8 text-gray-400 dark:text-gray-500">
@@ -43,12 +50,20 @@ export default function TaskDetail({ task }) {
     );
   }
   
-  // 处理任务完成状态切换
+  /**
+   * @function handleToggleComplete
+   * @description Toggles the completion status of the selected task.
+   * Dispatches an action to update the task's status in the global state.
+   */
   const handleToggleComplete = () => {
     dispatch({ type: 'TOGGLE_TASK', payload: selectedTask.id });
   };
   
-  // 处理任务删除
+  /**
+   * @function handleDeleteTask
+   * @description Handles the deletion of the selected task.
+   * Calls the API to delete the task and updates the local state upon success.
+   */
   const handleDeleteTask = async () => {
     if (!selectedTask || !selectedTask.id) return;
     
@@ -66,18 +81,33 @@ export default function TaskDetail({ task }) {
     }
   };
   
-  // 处理编辑表单变更
+  /**
+   * @function handleEditChange
+   * @description Handles changes in the edit form input fields.
+   * Updates the local `editForm` state.
+   * @param {Event} e - The input change event object.
+   */
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // 处理分类变更（可选，如果有特殊逻辑）
+  /**
+   * @function handleCategoryChange
+   * @description Handles category change in the edit form.
+   * (Currently no specific logic, can be extended if needed)
+   * @param {Event} e - The select change event object.
+   */
   const handleCategoryChange = (e) => {
-    // 可根据需要添加逻辑
+    // Can add specific logic if needed
   };
   
-  // 处理编辑表单提交
+  /**
+   * @function handleEditSubmit
+   * @description Handles the submission of the task edit form.
+   * Calls the API to update the task and updates the local state upon success.
+   * @param {Event} e - The form submission event object.
+   */
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -111,11 +141,11 @@ export default function TaskDetail({ task }) {
     }
   };
   
-  // 渲染任务详情或编辑表单
+  // Render task details or edit form
   return (
     <div className="flex-1 p-6 overflow-y-auto">
       {isEditing ? (
-        // 编辑表单
+        // Edit form
         <form onSubmit={handleEditSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -123,8 +153,8 @@ export default function TaskDetail({ task }) {
             </label>
             <input
               type="text"
-              name="task_name" // 从title更改
-              value={editForm.task_name} // 从title更改
+              name="task_name" // Changed from title
+              value={editForm.task_name} // Changed from title
               onChange={handleEditChange}
               className="w-full p-2 border border-gray-300 dark:border-zinc-600 rounded-md dark:bg-zinc-800"
               required
@@ -212,7 +242,7 @@ export default function TaskDetail({ task }) {
           </div>
         </form>
       ) : (
-        // 任务详情
+        // Task details
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{selectedTask.task_name}</h2>
@@ -234,19 +264,19 @@ export default function TaskDetail({ task }) {
             </div>
           </div>
           <div className="mb-2">
-            <span className="font-semibold">Content：</span>
+            <span className="font-semibold">Content: </span>
             <span>{selectedTask.content || 'None'}</span>
           </div>
           <div className="mb-2">
-            <span className="font-semibold">Deadline：</span>
+            <span className="font-semibold">Deadline: </span>
             <span>{selectedTask.deadline || 'None'}</span>
           </div>
           <div className="mb-2">
-            <span className="font-semibold">Priority：</span>
+            <span className="font-semibold">Priority: </span>
             <span>{selectedTask.priority || 'None'}</span>
           </div>
           <div className="mb-2">
-            <span className="font-semibold">Category：</span>
+            <span className="font-semibold">Category: </span>
             <span>
               {categories.find(c => c.id === selectedTask.category_name)?.name || 'None'}
             </span>

@@ -11,7 +11,7 @@ import ErrorBoundary from './ErrorBoundary';
 import { useRef } from 'react';
 import CategoryList from './CategoryList';
 
-// 更新优先级数组，包括'none'
+// Updated priority array, including 'none'
 const priorities = [
     { value: 'none', label: 'none' },
     { value: 'low', label: 'low' },
@@ -19,18 +19,30 @@ const priorities = [
     { value: 'high', label: 'high' },
 ];
 
+/**
+ * @component TaskModule
+ * @description Main module for managing tasks.
+ * Integrates TaskList and TaskDetail components.
+ * Handles task creation via a modal and allows resizing of the TaskList panel.
+ */
 export default function TaskModule() {
   const { selectedTaskId, dispatch, categories, selectedCategoryId } = useTasks();
   const { showSuccess, showError } = useToast(); // Add this line
 
-  // --- 添加列宽状态 ---
+  // --- Column width state ---
   const minTaskListWidth = 180;
   const maxTaskListWidth = 600;
-  const [taskListWidth, setTaskListWidth] = useState(340); // px, 初始任务列表宽度
+  const [taskListWidth, setTaskListWidth] = useState(340); // px, initial task list width
   const resizing = useRef({ active: false, startX: 0, startTaskList: 0 });
   const [showDivider, setShowDivider] = useState(false);
 
-  // --- 鼠标事件处理器用于调整大小 ---
+  // --- Mouse event handlers for resizing ---
+  /**
+   * @function handleMouseDown
+   * @description Handles mouse down event on the resizer divider.
+   * Initializes resizing state and adds global mouse move/up listeners.
+   * @param {MouseEvent} e - The mouse down event.
+   */
   const handleMouseDown = (e) => {
     resizing.current = {
       active: true,
@@ -40,26 +52,37 @@ export default function TaskModule() {
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
     document.body.style.cursor = 'col-resize';
-    setShowDivider(true); // 拖动时保持分隔线可见
+    setShowDivider(true); // Keep divider visible during drag
   };
 
+  /**
+   * @function handleMouseMove
+   * @description Handles mouse move event during resizing.
+   * Calculates and sets the new width for the task list, within defined limits.
+   * @param {MouseEvent} e - The mouse move event.
+   */
   const handleMouseMove = (e) => {
     if (!resizing.current.active) return;
     const dx = e.clientX - resizing.current.startX;
-    // 限制宽度
+    // Limit width
     const newWidth = Math.max(minTaskListWidth, Math.min(maxTaskListWidth, resizing.current.startTaskList + dx));
     setTaskListWidth(newWidth);
   };
 
+  /**
+   * @function handleMouseUp
+   * @description Handles mouse up event after resizing.
+   * Clears resizing state and removes global mouse listeners.
+   */
   const handleMouseUp = () => {
     resizing.current.active = false;
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
     document.body.style.cursor = '';
-    setShowDivider(false); // 拖动后隐藏分隔线
+    setShowDivider(false); // Hide divider after drag
   };
 
-  // 保留模态相关状态和处理程序
+  // Modal related state and handlers
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
     title: '',
@@ -71,6 +94,10 @@ export default function TaskModule() {
 
   // Remove editForm and its handlers if not used for modal
 
+  /**
+   * @function handleOpenModal
+   * @description Opens the 'Add New Task' modal and resets the form.
+   */
   const handleOpenModal = () => {
     setForm({
       title: '',
@@ -82,12 +109,28 @@ export default function TaskModule() {
     setShowModal(true);
   };
 
+  /**
+   * @function handleCloseModal
+   * @description Closes the 'Add New Task' modal.
+   */
   const handleCloseModal = () => setShowModal(false);
 
+  /**
+   * @function handleChange
+   * @description Handles changes in the 'Add New Task' form input fields.
+   * Updates the local `form` state.
+   * @param {Event} e - The input change event object.
+   */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  /**
+   * @function handleSubmit
+   * @description Handles the submission of the 'Add New Task' form.
+   * Calls the API to create a new task and updates the local state upon success.
+   * @param {Event} e - The form submission event object.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim()) return;
@@ -128,7 +171,7 @@ export default function TaskModule() {
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
-      {/* 浮动 + 按钮 */}
+      {/* Floating + Button */}
       <button
         className="fixed bottom-8 right-8 z-50 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg text-3xl"
         onClick={handleOpenModal}
@@ -197,7 +240,7 @@ export default function TaskModule() {
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded p-2 font-semibold"
               >
-                添加任务
+                Add Task 
               </button>
             </form>
           </div>

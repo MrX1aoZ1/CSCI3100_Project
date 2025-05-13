@@ -1,6 +1,14 @@
 // ./backend/models/Category.js
 const mysql = require('mysql2/promise');
 
+/**
+ * Creates the Category table in the database if it doesn't already exist.
+ * This table stores categories associated with users.
+ * @async
+ * @function createCategoryTable
+ * @returns {Promise<void>} A promise that resolves when the table is created or if it already exists.
+ * @throws {Error} If there is an error connecting to the database or executing the query.
+ */
 const createCategoryTable = async () => {
     try {
         const connection = await mysql.createConnection({
