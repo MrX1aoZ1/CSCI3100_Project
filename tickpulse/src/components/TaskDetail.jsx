@@ -81,32 +81,21 @@ export default function TaskDetail({ task }) {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Update task name/content if changed
-      if (editForm.task_name !== selectedTask.task_name || editForm.content !== selectedTask.content) {
-        await taskApi.updateTask(selectedTask.id, {
-          task_name: editForm.task_name,
-          content: editForm.content,
-          deadline: editForm.deadline,
-          priority: editForm.priority,
-          category_name: editForm.category_name,
-        });
-      }
-      // Update status if changed
-      if (editForm.status && editForm.status !== selectedTask.status) {
-        await taskApi.updateTaskStatus(selectedTask.id, editForm.status);
-      }
-      // Update priority if changed
-      if (editForm.priority !== selectedTask.priority) {
-        await taskApi.updateTaskPriority(selectedTask.id, editForm.priority);
-      }
-      // Update category if changed
-      if (editForm.category_name !== selectedTask.category_name) {
-        await taskApi.updateTaskCategory(selectedTask.id, editForm.category_name);
-      }
-      // Update deadline if changed
-      if (editForm.deadline !== selectedTask.deadline) {
-        await taskApi.updateTaskDeadline(selectedTask.id, editForm.deadline);
-      }
+      // Create a complete update object with all required fields
+      const updateData = {
+        task_name: editForm.task_name,
+        content: editForm.content,
+        deadline: editForm.deadline,
+        priority: editForm.priority,
+        category_name: editForm.category_name,
+      };
+
+      // Update the task with all fields to ensure task_name is included
+      await taskApi.updateTask(selectedTask.id, updateData);
+      
+      // No need for individual updates since we're updating everything at once
+      // This prevents the "task_name cannot be null" error
+      
       dispatch({
         type: 'UPDATE_TASK',
         payload: {
@@ -144,7 +133,7 @@ export default function TaskDetail({ task }) {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              内容
+              Content
             </label>
             <textarea
               name="content"
@@ -272,7 +261,7 @@ export default function TaskDetail({ task }) {
               onClick={handleToggleComplete}
             >
               <CheckIcon className="h-5 w-5 inline-block mr-1" />
-              {selectedTask.status === 'completed' ? '已完成' : '标记为完成'}
+              {selectedTask.status === 'completed' ? '已完成' : 'Mark as Done'}
             </button>
           </div>
         </div>

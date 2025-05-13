@@ -105,9 +105,9 @@ export default function TaskList() {
         {/* Filter Bar */}
         <div className="flex space-x-2 mt-2">
           {[
-            { key: 'all', label: '所有任务' },
-            { key: 'today', label: '今日任务' },
-            { key: 'completed', label: '已完成任务' }
+            { key: 'all', label: 'All Mission' },
+            { key: 'today', label: 'Today Mission' },
+            { key: 'completed', label: 'Finished Mission' }
           ].map(filter => (
             <button
               key={filter.key}
