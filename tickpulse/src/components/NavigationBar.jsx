@@ -10,9 +10,9 @@ import FilterSelector from   './FilterSelector';
 import { useToast } from '@/context/ToastContext'; // Import useToast
 
 const predefinedFilters = [
-  { name: '所有任务', filter: 'all', icon: InboxIcon },
-  { name: '今日任务', filter: 'today', icon: CalendarDaysIcon },
-  { name: '已完成', filter: 'completed', icon: CheckCircleIcon },
+  { name: 'All Tasks', filter: 'all', icon: InboxIcon },
+  { name: 'Today\'s Tasks', filter: 'today', icon: CalendarDaysIcon },
+  { name: 'Completed Tasks', filter: 'completed', icon: CheckCircleIcon },
 ];
 
 const TIMER_MODES = [

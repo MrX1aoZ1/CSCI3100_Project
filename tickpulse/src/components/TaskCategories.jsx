@@ -4,10 +4,10 @@ import { useTasks } from '@/context/TaskContext';
 import "@/styles/globals.css";
 
 const categories = [
-  { id: 'all', name: '所有任务' },
-  { id: 'today', name: '今日任务' },
-  { id: 'completed', name: '已完成' },
-  { id: 'abandoned', name: '已放弃' }
+  { id: 'all', name: 'All Tasks' },
+  { id: 'today', name: 'Today\'s Tasks' },
+  { id: 'completed', name: 'Completed' },
+  { id: 'abandoned', name: 'Abandoned' }
 ];
 
 export default function TaskCategories() {
