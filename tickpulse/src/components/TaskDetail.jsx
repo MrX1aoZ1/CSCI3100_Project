@@ -38,7 +38,7 @@ export default function TaskDetail({ task }) {
   if (!selectedTask) {
     return (
       <div className="flex-1 flex items-center justify-center p-8 text-gray-400 dark:text-gray-500">
-        选择一个任务查看详情
+        Select a task to view details
       </div>
     );
   }
@@ -119,7 +119,7 @@ export default function TaskDetail({ task }) {
         <form onSubmit={handleEditSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              标题
+              Title
             </label>
             <input
               type="text"
@@ -146,7 +146,7 @@ export default function TaskDetail({ task }) {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              截止日期
+              Deadline
             </label>
             <input
               type="date"
@@ -159,7 +159,7 @@ export default function TaskDetail({ task }) {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              优先级
+              Priority
             </label>
             <select
               name="priority"
@@ -167,16 +167,16 @@ export default function TaskDetail({ task }) {
               onChange={handleEditChange}
               className="w-full p-2 border border-gray-300 dark:border-zinc-600 rounded-md dark:bg-zinc-800"
             >
-              <option value="none">无</option>
-              <option value="low">低</option>
-              <option value="medium">中</option>
-              <option value="high">高</option>
+              <option value="none">none</option>
+              <option value="low">low</option>
+              <option value="medium">medium</option>
+              <option value="high">High</option>
             </select>
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              分类
+              Category
             </label>
             <select
               name="category_name"
@@ -199,7 +199,7 @@ export default function TaskDetail({ task }) {
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
               <CheckIcon className="h-5 w-5 inline-block mr-1" />
-              保存
+              Save
             </button>
             <button
               type="button"
@@ -207,7 +207,7 @@ export default function TaskDetail({ task }) {
               onClick={() => setIsEditing(false)}
             >
               <XMarkIcon className="h-5 w-5 inline-block mr-1" />
-              取消
+              Cancel
             </button>
           </div>
         </form>
@@ -220,35 +220,35 @@ export default function TaskDetail({ task }) {
               <button
                 className="p-2 rounded bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200"
                 onClick={() => setIsEditing(true)}
-                title="编辑"
+                title="edit"
               >
                 <PencilIcon className="h-5 w-5" />
               </button>
               <button
                 className="p-2 rounded bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-200"
                 onClick={handleDeleteTask}
-                title="删除"
+                title="delete"
               >
                 <TrashIcon className="h-5 w-5" />
               </button>
             </div>
           </div>
           <div className="mb-2">
-            <span className="font-semibold">内容：</span>
-            <span>{selectedTask.content || '无'}</span>
+            <span className="font-semibold">Content：</span>
+            <span>{selectedTask.content || 'None'}</span>
           </div>
           <div className="mb-2">
-            <span className="font-semibold">截止日期：</span>
-            <span>{selectedTask.deadline || '无'}</span>
+            <span className="font-semibold">Deadline：</span>
+            <span>{selectedTask.deadline || 'None'}</span>
           </div>
           <div className="mb-2">
-            <span className="font-semibold">优先级：</span>
-            <span>{selectedTask.priority || '无'}</span>
+            <span className="font-semibold">Priority：</span>
+            <span>{selectedTask.priority || 'None'}</span>
           </div>
           <div className="mb-2">
-            <span className="font-semibold">分类：</span>
+            <span className="font-semibold">Category：</span>
             <span>
-              {categories.find(c => c.id === selectedTask.category_name)?.name || '无'}
+              {categories.find(c => c.id === selectedTask.category_name)?.name || 'None'}
             </span>
           </div>
           <div className="flex space-x-2 mt-4">
@@ -261,7 +261,7 @@ export default function TaskDetail({ task }) {
               onClick={handleToggleComplete}
             >
               <CheckIcon className="h-5 w-5 inline-block mr-1" />
-              {selectedTask.status === 'completed' ? '已完成' : 'Mark as Done'}
+              {selectedTask.status === 'completed' ? 'Completed' : 'Mark as Done'}
             </button>
           </div>
         </div>

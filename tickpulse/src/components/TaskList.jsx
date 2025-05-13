@@ -28,9 +28,9 @@ export default function TaskList() {
       return category ? category.name : 'Tasks';
     } else if (selectedView === 'filter') {
       switch (activeFilter) {
-        case 'all': return '所有任务';
-        case 'today': return '今日任务';
-        case 'completed': return '已完成任务';
+        case 'all': return 'All Mission';
+        case 'today': return 'Today Mission';
+        case 'completed': return 'Finished Mission';
         default: return 'Tasks';
       }
     }
@@ -129,7 +129,7 @@ export default function TaskList() {
       <div className="flex-1 overflow-y-auto">
         {filteredTasks.length === 0 ? (
           <div className="p-4 text-center text-gray-500 dark:text-gray-400">
-            没有任务
+            No tasks
           </div>
         ) : (
           <ul className="divide-y divide-gray-200 dark:divide-zinc-700">
@@ -165,7 +165,7 @@ export default function TaskList() {
                       </h3>
                       {task.deadline && (
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          截止日期: {task.deadline}
+                          Due date: {task.deadline}
                         </p>
                       )}
                     </div>

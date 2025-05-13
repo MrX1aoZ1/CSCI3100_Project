@@ -13,10 +13,10 @@ import CategoryList from './CategoryList';
 
 // 更新优先级数组，包括'none'
 const priorities = [
-    { value: 'none', label: '无' },
-    { value: 'low', label: '低' },
-    { value: 'medium', label: '中' },
-    { value: 'high', label: '高' },
+    { value: 'none', label: 'none' },
+    { value: 'low', label: 'low' },
+    { value: 'medium', label: 'medium' },
+    { value: 'high', label: 'high' },
 ];
 
 export default function TaskModule() {
@@ -148,13 +148,13 @@ export default function TaskModule() {
             >
               ×
             </button>
-            <h2 className="text-lg font-semibold mb-4">添加新任务</h2>
+            <h2 className="text-lg font-semibold mb-4">Add New Task</h2>
             <form onSubmit={handleSubmit} className="space-y-3">
               <input
                 name="title"
                 value={form.title}
                 onChange={handleChange}
-                placeholder="标题"
+                placeholder="Title"
                 className="w-full border rounded p-2"
                 required
               />
@@ -162,7 +162,7 @@ export default function TaskModule() {
                 name="content"
                 value={form.content}
                 onChange={handleChange}
-                placeholder="详情"
+                placeholder="Details"
                 className="w-full border rounded p-2"
               />
               <input
@@ -178,10 +178,10 @@ export default function TaskModule() {
                 onChange={handleChange}
                 className="w-full border rounded p-2"
               >
-                <option value="none">无优先级</option>
-                <option value="low">低</option>
-                <option value="medium">中</option>
-                <option value="high">高</option>
+                <option value="none">No Priority</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
               </select>
               <select
                 name="categoryName"

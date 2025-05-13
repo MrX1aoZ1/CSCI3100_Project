@@ -2,9 +2,9 @@ import React from 'react';
 import { useTasks } from '@/context/TaskContext';
 
 const FILTERS = [
-  { key: 'all', label: '所有任务' },
-  { key: 'today', label: '今日任务' },
-  { key: 'completed', label: '已完成任务' }
+  { key: 'all', label: 'All Tasks' },
+  { key: 'today', label: 'Today\'s Tasks' },
+  { key: 'completed', label: 'Completed Tasks' }
 ];
 
 export default function FilterSelector({ vertical = false }) {
