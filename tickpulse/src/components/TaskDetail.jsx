@@ -170,7 +170,7 @@ export default function TaskDetail({ task }) {
               <option value="none">none</option>
               <option value="low">low</option>
               <option value="medium">medium</option>
-              <option value="high">high</option>
+              <option value="high">High</option>
             </select>
           </div>
           
@@ -199,7 +199,7 @@ export default function TaskDetail({ task }) {
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
               <CheckIcon className="h-5 w-5 inline-block mr-1" />
-              保存
+              Save
             </button>
             <button
               type="button"
@@ -207,7 +207,7 @@ export default function TaskDetail({ task }) {
               onClick={() => setIsEditing(false)}
             >
               <XMarkIcon className="h-5 w-5 inline-block mr-1" />
-              取消
+              Cancel
             </button>
           </div>
         </form>
@@ -235,20 +235,20 @@ export default function TaskDetail({ task }) {
           </div>
           <div className="mb-2">
             <span className="font-semibold">Content：</span>
-            <span>{selectedTask.content || '无'}</span>
+            <span>{selectedTask.content || 'None'}</span>
           </div>
           <div className="mb-2">
             <span className="font-semibold">Deadline：</span>
-            <span>{selectedTask.deadline || '无'}</span>
+            <span>{selectedTask.deadline || 'None'}</span>
           </div>
           <div className="mb-2">
             <span className="font-semibold">Priority：</span>
-            <span>{selectedTask.priority || '无'}</span>
+            <span>{selectedTask.priority || 'None'}</span>
           </div>
           <div className="mb-2">
             <span className="font-semibold">Category：</span>
             <span>
-              {categories.find(c => c.id === selectedTask.category_name)?.name || '无'}
+              {categories.find(c => c.id === selectedTask.category_name)?.name || 'None'}
             </span>
           </div>
           <div className="flex space-x-2 mt-4">
@@ -261,7 +261,7 @@ export default function TaskDetail({ task }) {
               onClick={handleToggleComplete}
             >
               <CheckIcon className="h-5 w-5 inline-block mr-1" />
-              {selectedTask.status === 'completed' ? '已完成' : 'Mark as Done'}
+              {selectedTask.status === 'completed' ? 'Completed' : 'Mark as Done'}
             </button>
           </div>
         </div>
