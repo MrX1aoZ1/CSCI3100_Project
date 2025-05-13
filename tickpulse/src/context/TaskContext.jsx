@@ -192,10 +192,10 @@ export const taskApi = {
 const initialState = {
   tasks: [],
   categories: [{ id: 'inbox', name: 'Inbox' }], // Changed from projects to categories
-  selectedCategoryId: 'inbox', // Default selected category
+  selectedCategoryId: 'inbox', 
   selectedTaskId: null,
-  selectedView: 'category', // Changed from 'project' to 'category'
-  activeFilter: null, // Default active filter ('all', 'today', 'completed')
+  selectedView: 'filter', // Changed from 'category' to 'filter'
+  activeFilter: 'all', // Set default filter to 'all'
 };
 
 // --- Helper Functions ---
