@@ -32,12 +32,12 @@ export default function LicenseUpgradeModal({ isOpen, onUpgrade, formError }) {
           <h2 className="text-xl font-bold mb-4">License Upgrade</h2>
           <p className="mb-4">
             Currnent license does not support calendar feature. Please enter advanced license key:
-            <span className="block mt-2 text-sm text-blue-600">
+            {/* <span className="block mt-2 text-sm text-blue-600">
               Valid advanced license key:<br />
               B2N8-LM9S-DH4Y-CQ1W<br />
               NBUN-JW8N-SUIS-451N
 
-            </span>
+            </span> */}
           </p>
 
           <input
