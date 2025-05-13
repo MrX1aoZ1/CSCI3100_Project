@@ -238,26 +238,26 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* 注册按钮 */}
+            {/* Sign-up button */}
             <button
               type="submit"
               className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
               disabled={isLoading}
             >
-              {isLoading ? "註冊中..." : "註冊"}
+              {isLoading ? "Register..." : "Register"}
             </button>
 
-            {/* 登录链接 */}
+            {/* Login Password */}
             <div className="text-center mt-4">
               <p className="text-sm text-gray-600">
-                已有帳號？
+                Already have an account?{" "}
                 <Link
                   href="/login"
                   className="text-blue-600 hover:text-blue-800 ml-1 font-medium"
                 >
-                  按此
+                  Click here
                 </Link>
-                登錄
+                to login.
               </p>
             </div>
             <p className="mx-6 mb-4 text-center text-red-500">

@@ -9,8 +9,8 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const [email, setEmail] = useState('hayashicoco@gmail.com');
-  const [password, setPassword] = useState('0515hayashi');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const [formError, setFormError] = useState(undefined);
 
@@ -93,7 +93,7 @@ export default function LoginPage() {
         <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
           {/* 標題 */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">歡迎回來</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           </div>
 
           {/* Login Form */}
@@ -104,7 +104,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                placeholder="郵箱"
+                placeholder="Email"
                 value={email}
                 onChange={(event) => {
                   setEmail(event.target.value);
@@ -118,7 +118,7 @@ export default function LoginPage() {
               <input
                 type="password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                placeholder="密碼"
+                placeholder="Password"
                 value={password}
                 onChange={(event) => {
                   setPassword(event.target.value);
@@ -132,20 +132,20 @@ export default function LoginPage() {
               className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
               disabled={isLoading}
             >
-              {isLoading ? "登錄中..." : "登錄"}
+              {isLoading ? "Login..." : "Login"}
             </button>
 
             {/* Register Link */}
             <div className="text-center mt-4">
               <p className="text-sm text-gray-600">
-                没有帳號？
+                No account?{" "}
                 <Link
                   href="/sign-up"
                   className="text-blue-600 hover:text-blue-800 ml-1 font-medium"
                 >
-                  按此
+                  Click here
                 </Link>
-                註冊
+                to register.
               </p>
             </div>
 
