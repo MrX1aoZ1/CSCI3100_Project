@@ -11,11 +11,51 @@ const API_BASE_URL = 'http://localhost:3000';
 const TaskContext = createContext();
 export function TaskProvider({ children }) {
   const [state, dispatch] = useReducer(taskReducer, initialState);
+  const { showError } = useToast();
+  
   // Load state from localStorage on mount
   useEffect(() => {
     const savedState = loadState();
     if (savedState) {
       dispatch({ type: 'HYDRATE_STATE', payload: savedState });
+    }
+    
+    // Fetch tasks from the backend when component mounts
+    const fetchInitialData = async () => {
+      try {
+        // Fetch tasks
+        const tasks = await taskApi.getTasks();
+        if (Array.isArray(tasks)) {
+          dispatch({ type: 'SET_TASKS', payload: tasks });
+        }
+        
+        // Fetch categories
+        const categories = await taskApi.getAllCategories();
+        if (Array.isArray(categories)) {
+          const transformedCategories = categories.map(cat => ({
+            id: cat.category_id ? cat.category_id.toString() : `temp-${Math.random()}`,
+            name: cat.category_name || 'Unnamed Category'
+          }));
+          
+          if (!transformedCategories.find(c => c.id === 'inbox')) {
+            transformedCategories.unshift({ id: 'inbox', name: 'Inbox' });
+          }
+          
+          dispatch({
+            type: 'SET_CATEGORIES',
+            payload: transformedCategories
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch initial data:', error);
+        showError('Failed to load tasks and categories');
+      }
+    };
+    
+    // Check if user is authenticated before fetching data
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      fetchInitialData();
     }
   }, []);
 
@@ -23,9 +63,24 @@ export function TaskProvider({ children }) {
   useEffect(() => {
     saveState(state);
   }, [state]);
-
+  
+  // Function to refresh tasks
+  const refreshTasks = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) return;
+      
+      const tasks = await taskApi.getTasks();
+      if (Array.isArray(tasks)) {
+        dispatch({ type: 'SET_TASKS', payload: tasks });
+      }
+    } catch (error) {
+      console.error('Failed to refresh tasks:', error);
+    }
+  };
+  
   return (
-    <TaskContext.Provider value={{ ...state, dispatch }}>
+    <TaskContext.Provider value={{ ...state, dispatch, refreshTasks }}>
       {children}
     </TaskContext.Provider>
   );
@@ -309,6 +364,11 @@ const taskReducer = (state, action) => {
       return { ...state, selectedView: action.payload };
     case 'SET_FILTER':
       return { ...state, activeFilter: action.payload };
+    case 'SET_TASKS':
+      return {
+        ...state,
+        tasks: action.payload
+      };
     default:
       return state;
   }
