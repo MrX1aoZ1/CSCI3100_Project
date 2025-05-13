@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FiMail, FiLock } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import React, { useCallback, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -13,6 +13,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [licenseKey, setLicenseKey] = useState('');
 
   const [formError, setFormError] = useState(undefined);
@@ -178,9 +180,15 @@ export default function RegisterPage() {
 
             {/* Password */}
             <div className="relative">
-              <FiLock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-500"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(event) => {
                   setPassword(event.target.value);
@@ -192,9 +200,15 @@ export default function RegisterPage() {
 
             {/* Confirmed Password */}
             <div className="relative">
-              <FiLock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-500"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
               <input
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(event) => {
                   setConfirmPassword(event.target.value);
@@ -238,26 +252,26 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* 注册按钮 */}
+            {/* Sign-up button */}
             <button
               type="submit"
               className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
               disabled={isLoading}
             >
-              {isLoading ? "註冊中..." : "註冊"}
+              {isLoading ? "Register..." : "Register"}
             </button>
 
-            {/* 登录链接 */}
+            {/* Login Password */}
             <div className="text-center mt-4">
               <p className="text-sm text-gray-600">
-                已有帳號？
+                Already have an account?{" "}
                 <Link
                   href="/login"
                   className="text-blue-600 hover:text-blue-800 ml-1 font-medium"
                 >
-                  按此
+                  Click here
                 </Link>
-                登錄
+                to login.
               </p>
             </div>
             <p className="mx-6 mb-4 text-center text-red-500">
