@@ -10,11 +10,11 @@ const createUserTable = require('./models/User');
 const createTimerTable = require('./models/Timer');
 const createCategoryTable = require('./models/Category');
 
-// 初始化模块
+// Initiallize the Routes
 const authRoutes = require('./routes/authRoutes');
 const apiRoutes = require('./routes/apiRoutes');
 
-// 全局配置
+// Global env.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

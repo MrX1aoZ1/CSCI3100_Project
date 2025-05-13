@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const { sendResponse } = require('./response');
 connectDB = require('../config/db');
 
-// Token storage
+// Centralized tokenStore
 const tokenStore = {
   accessTokens: new Map(),
   refreshTokens: new Map(),
@@ -26,18 +26,18 @@ const tokenStore = {
 
   cleanupExpired() {
     const now = Date.now();
-    // Clean up expired Access Tokens
+    // Delete expired accessToken
     this.accessTokens.forEach((value, key) => {
       if (value.expires < now) this.accessTokens.delete(key);
     });
-    // Clean up expired Refresh Tokens
+    // Delete expired refresjToken
     this.refreshTokens.forEach((value, key) => {
       if (value.expires < now) this.refreshTokens.delete(key);
     });
   }
 };
 
-// cleanupExpired tokens every minute
+// Delete expired token
 // setInterval(() => tokenStore.cleanupExpired(), 60 * 1000);
 
 function generateAccessToken(user) {
@@ -53,8 +53,8 @@ function generateAccessToken(user) {
 }
 
 function generateRefreshToken(userId) {
-	const refreshToken = uuidv4(); // create UUID
-	const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days validity
+	const refreshToken = uuidv4(); // Generate UUIDv4 only
+	const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // Expires in 7 days
 	tokenStore.addRefreshToken(refreshToken, userId, expires);
 	return refreshToken;	
   }
@@ -80,25 +80,25 @@ function verifyToken(req, res, next) {
 
 function handleLogout(req, res) {
 	try {
-	  // 使Access Token失效
+	  // Disable the accessToken
 	  const accessToken = req.headers.authorization?.split(' ')[1];
 	  if (accessToken) {
 		const decoded = jwt.decode(accessToken);
 		if (decoded?.jti) tokenStore.invalidateAccessToken(decoded.jti);
 	  }
   
-	  // 增强：检查请求体是否存在
+	  // Check whether the request body (refreshToekn) exist
 	  if (!req.body) {
 		return sendResponse.error(res, 'Invalid Request Body', 400);
 	  }
   
-	  // 使Refresh Token失效
+	  // Disable the refreshToken
 	  const refreshToken = req.body.refreshToken;
 	  if (refreshToken) {
 		tokenStore.invalidateRefreshToken(refreshToken);
 	  }
   
-	  // Passport注销流程
+	  // Passport Logout 
 	  req.logout(() => {
 		req.session.destroy(() => {
 		  res.clearCookie('connect.sid', {
@@ -120,14 +120,14 @@ async function verifyAndAttachUser(req, res, next) {
   if (!token) return sendResponse.error(res, 'No Token Provided', 401);
 
   try {
-    // 验证令牌有效性
+    // Check whether the token is valid
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const meta = tokenStore.accessTokens.get(decoded.jti);
     if (!meta || !meta.valid || meta.expires < Date.now()) {
       return sendResponse.error(res, 'Invalid Token', 403);
     }
 
-    // 从数据库获取用户信息
+    // Obtain user data from the database
     const connection = await connectDB();
     const [users] = await connection.query('SELECT * FROM Users WHERE id = ?', [decoded.userId]);
     await connection.end();
@@ -136,7 +136,7 @@ async function verifyAndAttachUser(req, res, next) {
       return sendResponse.error(res, 'User not found', 404);
     }
 
-    // 挂载用户信息到 req.user
+    // Attach user data to the request object
     const user = users[0];
     delete user.password;
     req.user = user;
