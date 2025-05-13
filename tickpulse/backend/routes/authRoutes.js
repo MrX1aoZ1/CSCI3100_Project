@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const bcrypt = require('bcrypt');
+const licenses = require('../licenseKey');
 const { generateAccessToken, generateRefreshToken, handleLogout } = require('../utils/authUtils');
 const { sendResponse } = require('../utils/response');
 const { checkNotAuthenticated } = require('../middleware/authMiddleware');
@@ -16,11 +17,9 @@ initializePassport(passport);
 // Sign-Up
 router.post('/sign-up', checkNotAuthenticated, async (req, res) => {
   try {
-    const { email, password } = req.body;
-    
-    if (!email || !password) {
-      return sendResponse.error(res, 'Email and password are required', 400);
-    }
+    const { email, password, licenseKey } = req.body;
+
+    console.log(email, password, licenseKey);
 
     const connection = await connectDB();
     const [existingUsers] = await connection.query('SELECT * FROM Users WHERE email = ?', [email]);
@@ -30,12 +29,18 @@ router.post('/sign-up', checkNotAuthenticated, async (req, res) => {
       return sendResponse.error(res, 'Email already exists', 400);
     }
 
+    const licenseType = licenses[licenseKey] ? licenses[licenseKey].type : 'invalid';
+    console.log(licenseKey, licenseType);
+    if (licenseType === 'invalid') {
+      await connection.end();
+      return sendResponse.error(res, 'Invalid license key', 401);
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const license_key = "TEM8S2-2ET83-CGKP1-DPSI2-EPZO1"
 
     const [result] = await connection.query(
       'INSERT INTO Users (email, password, license_key) VALUES (?, ?, ?)',
-      [email, hashedPassword, license_key]
+      [email, hashedPassword, licenseKey]
     );
     await connection.end();
 
@@ -56,7 +61,8 @@ router.post('/login', checkNotAuthenticated, (req, res, next) => {
       return sendResponse.error(res, 'Server Error', 500);
     }
     if (!user) {
-      return sendResponse.error(res, info.message || 'Email or password is incorrect', 401);
+      const statusCode = info.message === 'Email not registered' ? 401 : 402;
+      return sendResponse.error(res, info.message, statusCode);
     }
 
     req.login(user, async (err) => {

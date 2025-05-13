@@ -12,8 +12,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState('hayashicoco@gmail.com');
   const [password, setPassword] = useState('0515hayashi');
 
-  const [emailError, setEmailError] = useState(undefined);
-  const [passwordError, setPasswordError] = useState(undefined);
   const [formError, setFormError] = useState(undefined);
 
   useEffect(() => {
@@ -26,17 +24,15 @@ export default function LoginPage() {
   const submitHandler = useCallback(
     async (event) => {
       event.preventDefault();
-      setEmailError(undefined);
-      setPasswordError(undefined);
       setFormError(undefined);
 
       if (!email) {
-        setEmailError("郵箱不能為空");
+        setEmailError("Email cannot be empty");
         return;
       }
 
       if (!password) {
-        setPasswordError("密碼不能為空");
+        setFormError("Password cannot be empty");
         return;
       }
 
@@ -53,40 +49,27 @@ export default function LoginPage() {
 
         const data = await response.json().catch(() => undefined);
 
-        if (response.status === 404) {
+        if (response.status === 401) {
           setIsLoading(false);
-          setEmailError(
-            "郵箱格式錯誤，請輸入有效的郵箱地址"
-          );
+          setFormError("User not registered, please register first");
           return;
         }
-        if (response.status === 403 && data?.error?.code === 'USER_DISABLED') {
+        if (response.status === 402) {
           setIsLoading(false);
-          setEmailError(
-            "此郵箱已被禁用，請聯繫管理員"
-          );
+          setFormError("Password is incorrect, please try again");
           return;
         }
-        if (
-          response.status === 401 &&
-          data?.error?.code === 'INCORRECT_PASSWORD'
-        ) {
-          setIsLoading(false);
-          setPasswordError(
-            "密碼錯誤，請重新輸入"
-          );
-          return;
-        }
+
         if (500 <= response.status && response.status < 600) {
           setIsLoading(false);
           setFormError(
-            "伺服器錯誤，請稍後再試"
+            "Server error, please try again later"
           );
         }
 
         if (!response.ok) {
           setIsLoading(false);
-          setFormError("發生未知錯誤，請稍後再試");
+          setFormError("Unknown error, please try again later");
           return;
         }
 
@@ -122,7 +105,6 @@ export default function LoginPage() {
                 type="email"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                 placeholder="郵箱"
-                error={emailError}
                 value={email}
                 onChange={(event) => {
                   setEmail(event.target.value);
@@ -137,7 +119,6 @@ export default function LoginPage() {
                 type="password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                 placeholder="密碼"
-                error={passwordError}
                 value={password}
                 onChange={(event) => {
                   setPassword(event.target.value);
