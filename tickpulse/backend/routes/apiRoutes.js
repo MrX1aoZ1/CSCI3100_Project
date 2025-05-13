@@ -6,10 +6,16 @@ const { verifyToken } = require('../utils/authUtils');
 const { checkAuthenticated } = require('../middleware/authMiddleware.js');
 const { sendResponse } = require('../utils/response');
 
+// @desc    Access protected data i.e. for testing in backend only
+// @route   POST /api/protected-data
+// @access  Private
 router.get('/protected-data', verifyToken, (req, res) => {
 	res.json({ secret: 'Protected data' });
 });
 
+// @desc    Access home data i.e. for testing in backend only
+// @route   POST /api/home-data
+// @access  Private
 router.get('/home-data', verifyToken, (req, res) => {
 	res.json({
 		protectedData: 'Protected data for authenticated users',
@@ -17,6 +23,9 @@ router.get('/home-data', verifyToken, (req, res) => {
 	});
 });
 
+// @desc    Update refresh token and access token using refresh token
+// @route   POST /api/refresh-token
+// @access  Private
 router.post('/refresh-token', (req, res) => {
 	const oldRefreshToken = req.body.refreshToken;
   
@@ -40,18 +49,13 @@ router.post('/refresh-token', (req, res) => {
 	});
   });
 
+// @desc    Verify whether the access token is valid i.e. for testing in backend only
+// @route   POST /api/verify-token
+// @access  Private
 router.get('/verify-token', verifyToken, (req, res) => {
 	res.json({
 		valid: true,
 		user: req.user
-	});
-});
-
-// Public Data 
-router.get('/data', (req, res) => {
-	res.json({
-		message: 'Public Data, No Authentication Required',
-		timestamp: new Date().toISOString()
 	});
 });
 

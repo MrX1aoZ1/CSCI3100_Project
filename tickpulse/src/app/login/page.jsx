@@ -50,6 +50,7 @@ export default function LoginPage() {
       }
 
       setIsLoading(true); // Set loading state
+
       try {
         // Send login request to the backend
         const response = await fetch(
@@ -78,9 +79,7 @@ export default function LoginPage() {
         // Handle server errors (5xx)
         if (500 <= response.status && response.status < 600) {
           setIsLoading(false);
-          setFormError(
-            "Server error, please try again later"
-          );
+          setFormError("Server error, please try again later");
           return; // Added return
         }
 
@@ -145,7 +144,7 @@ export default function LoginPage() {
                 type={showPassword ? "text" : "password"} // Dynamically set input type
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                 placeholder="Password"
-                value={password}
+                value={password}  // Show or hide password
                 onChange={(event) => {
                   setPassword(event.target.value);
                   if (formError) setFormError(undefined); // Clear error on input change
@@ -172,7 +171,7 @@ export default function LoginPage() {
                 >
                   Click here
                 </Link>
-                to register.
+                {" "}to register.
               </p>
             </div>
 

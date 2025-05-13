@@ -20,8 +20,7 @@ export default function CalendarPage() {
   const [formError, setFormError] = useState('');
   const [token, setToken] = useState('');
 
-  const router = useRouter();
-
+  // Obtain access token from the server
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const accessToken = localStorage.getItem('accessToken');
@@ -35,6 +34,7 @@ export default function CalendarPage() {
       try {
         if (!token) return;
 
+        // Make a request to the API to get the license information
         const response = await fetch(
           `${API_BASE_URL}/api/license`,
           {
@@ -44,8 +44,7 @@ export default function CalendarPage() {
         );
         const data = await response.json();
 
-        console.log(data);
-
+        // Set license key value and type 
         setLicenseKey(data.licenseKey);
         setLicenseKeyType(data.licenseType);
 
@@ -109,7 +108,6 @@ export default function CalendarPage() {
                 formError={formError}
               />
             </main>
-
           </div>
         </TaskProvider>
       </ToastProvider>

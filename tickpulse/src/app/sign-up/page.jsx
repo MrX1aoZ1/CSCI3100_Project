@@ -101,10 +101,7 @@ export default function RegisterPage() {
 
       setIsLoading(true);
 
-      console.log(email);
-      console.log(password);
-      console.log(licenseKey);
-
+      // Send sign-up request to the backend
       try {
         const response = await fetch(
           'http://localhost:3000/auth/sign-up',
@@ -118,8 +115,6 @@ export default function RegisterPage() {
           });
 
         console.log('Login response status:', response.status);
-
-        //const data = await response.json().catch(() => undefined);
 
         if (response.status === 400) {
           setIsLoading(false);
@@ -185,10 +180,10 @@ export default function RegisterPage() {
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-500"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <FiEyeOff /> : <FiEye />}
+                {showPassword ? <FiEyeOff /> : <FiEye />}   {/* Toggle password visibility */}
               </button>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? 'text' : 'password'} // Show or hide password
                 value={password}
                 onChange={(event) => {
                   setPassword(event.target.value);
@@ -271,7 +266,7 @@ export default function RegisterPage() {
                 >
                   Click here
                 </Link>
-                to login.
+                {" "}to login.
               </p>
             </div>
             <p className="mx-6 mb-4 text-center text-red-500">

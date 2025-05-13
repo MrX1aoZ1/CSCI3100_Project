@@ -12,7 +12,9 @@ const connectDB = require('../config/db');
 const initializePassport = require('../passport-config');
 initializePassport(passport);
 
-// Sign-Up
+// @desc    User Sign-Up
+// @route   POST /auth/sign-up
+// @access  Private
 router.post('/sign-up', checkNotAuthenticated, async (req, res) => {
   try {
     const { email, password, licenseKey } = req.body;
@@ -51,7 +53,9 @@ router.post('/sign-up', checkNotAuthenticated, async (req, res) => {
   }
 });
 
-// Login
+// @desc    User Login
+// @route   POST /auth/login 
+// @access  Private
 router.post('/login', checkNotAuthenticated, (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) {
@@ -88,9 +92,9 @@ router.post('/login', checkNotAuthenticated, (req, res, next) => {
   })(req, res, next);
 });
 
-
-
-// Logout
+// @desc    User Logout
+// @route   POST /auth/logout
+// @access  Private
 router.post('/logout', handleLogout);
 
 module.exports = router;

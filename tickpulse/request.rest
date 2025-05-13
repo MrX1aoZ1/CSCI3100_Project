@@ -4,6 +4,8 @@
 
 @access_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoidGVzdHVzZXJAZXhhbXBsZS5jb20iLCJqdGkiOiIyMThhMjVhYi1iZTRkLTRlYjgtOWIxZC1kOTRlOGNhYzEyOWQiLCJpYXQiOjE3NDY4OTcwMDIsImV4cCI6MTc0Njg5NzkwMn0.CFVPxwbMiLduGSjI0SscFRg93po4XalE601w1myCczo
 
+@refresh_token = 
+
 ### [1] 用户注册
 # @name signup 
 POST {{baseUrl}}/auth/sign-up

@@ -1,3 +1,4 @@
+// For centralized response handling
 module.exports.sendResponse = {
 	success: (res, data = {}, code = 200) =>
 		res.status(code).json({ success: true, ...data }),

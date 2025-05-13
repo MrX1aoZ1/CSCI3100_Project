@@ -2,7 +2,9 @@ const mysql = require('mysql2/promise');
 const connectDB = require('../config/db'); // Assuming you have a connectDB function to establish a connection
 const licenses = require('../licenseKey');
 
-// Get License Key
+// @desc    Obtain license key from database
+// @route   GET /api/license_key 
+// @access  Private
 const getLicenseKey = async (req, res) => {
   try {
     const connection = await connectDB();
@@ -22,7 +24,9 @@ const getLicenseKey = async (req, res) => {
   }
 };
 
-// Update License Key
+// @desc    Update license key
+// @route   Put /api/license_key 
+// @access  Private
 const updateLicenseKey = async (req, res) => {
   const { newKey } = req.body;
 
