@@ -16,6 +16,7 @@ const protect = async (req, res, next) => {
 	await verifyAndAttachUser(req, res, next);
 };
 
+// for testing purposes
 // const protect = async (req, res, next) => {
 //     try {
 //         let token = req.headers.authorization;

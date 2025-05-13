@@ -20,20 +20,20 @@ router.get('/home-data', verifyToken, (req, res) => {
 router.post('/refresh-token', (req, res) => {
 	const oldRefreshToken = req.body.refreshToken;
   
-	// 1. 验证旧Refresh Token有效性
+	// 1. Validate the validity of Refresh Token 
 	const meta = tokenStore.refreshTokens.get(oldRefreshToken);
 	if (!meta || !meta.valid) {
 	  return sendResponse.error(res, 'Invalid Refresh Token', 403);
 	}
-  
-	// 2. 生成新Tokens
+
+	// 2. Generate new Tokens
 	const newAccessToken = generateAccessToken({ id: meta.userId }).token;
 	const newRefreshToken = generateRefreshToken(meta.userId);
-  
-	// 3. 使旧Token失效并存储新Token
+
+	// 3. Invalidate old Token and store new Token
 	tokenStore.invalidateRefreshToken(oldRefreshToken);
-  
-	// 4. 返回标准化响应
+
+	// 4. Return standardized response
 	sendResponse.success(res, {
 	  accessToken: newAccessToken,
 	  refreshToken: newRefreshToken

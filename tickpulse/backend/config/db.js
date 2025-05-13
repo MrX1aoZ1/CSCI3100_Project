@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise');
 
+//connect to mysql database
 const connectDB = async () => {
     try {
         const connection = await mysql.createConnection({

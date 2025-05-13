@@ -3,8 +3,9 @@ const express = require('express');
 const { protect } = require('../middleware/authMiddleware');
 const { getTasks, getTaskById, getTasksByCategory, getAllCategory, createCategory, createTask, updateTask, deleteTask, updateTaskStatus, updateTaskPriority, updateTaskDeadline, updateTaskCategory, updateTaskContent } = require('../controllers/taskController');
 
-const router = express.Router();    
-
+const router = express.Router();
+    
+// Task Routes
 router.get('/category/:category_name', protect, getTasksByCategory); // Get tasks by category
 router.get('/category', protect, getAllCategory); // Get tasks by category
 router.post('/category', protect, createCategory); // Create a new category

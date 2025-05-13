@@ -34,9 +34,6 @@ app.use(session({
 // Connect to the Database and Ensure Tables
 (async () => {
     try {
-        // Ensure the database is created and connected
-        await connectDB();
-
         // Create tables after the database is ensured
         await createUserTable();
         await createTaskTable();
@@ -52,10 +49,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// 路由挂载
-app.use('/auth', authRoutes);
-app.use('/api', apiRoutes);
-
 // Public Routing
 app.get('/api/data', (req, res) => {
   res.json({ 
@@ -68,9 +61,8 @@ app.get('/api/data', (req, res) => {
 const taskRoutes = require("./routes/taskRoutes");
 const timerRoutes = require("./routes/timerRoutes");
 const licenseKeyRoutes = require("./routes/licenseKeyRoutes");
-// app.use("/api/auth", authRoutes);
-// app.use("/api/users", userRoutes);
-// app.use("/api/reports", reportRoutes);
+app.use('/auth', authRoutes);
+app.use('/api', apiRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/timers", timerRoutes);
 app.use("/api/license", licenseKeyRoutes)

@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const { sendResponse } = require('./response');
 connectDB = require('../config/db');
 
-// 统一Token存储
+// Token storage
 const tokenStore = {
   accessTokens: new Map(),
   refreshTokens: new Map(),
@@ -26,19 +26,19 @@ const tokenStore = {
 
   cleanupExpired() {
     const now = Date.now();
-    // 清理过期Access Token
+    // Clean up expired Access Tokens
     this.accessTokens.forEach((value, key) => {
       if (value.expires < now) this.accessTokens.delete(key);
     });
-    // 清理过期Refresh Token
+    // Clean up expired Refresh Tokens
     this.refreshTokens.forEach((value, key) => {
       if (value.expires < now) this.refreshTokens.delete(key);
     });
   }
 };
 
-// 定时清理任务
-setInterval(() => tokenStore.cleanupExpired(), 60 * 1000);
+// cleanupExpired tokens every minute
+// setInterval(() => tokenStore.cleanupExpired(), 60 * 1000);
 
 function generateAccessToken(user) {
   const jti = uuidv4();
@@ -53,8 +53,8 @@ function generateAccessToken(user) {
 }
 
 function generateRefreshToken(userId) {
-	const refreshToken = uuidv4(); // 仅生成UUID
-	const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7天有效期
+	const refreshToken = uuidv4(); // create UUID
+	const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days validity
 	tokenStore.addRefreshToken(refreshToken, userId, expires);
 	return refreshToken;	
   }

@@ -1,6 +1,7 @@
 // ./backend/models/Category.js
 const mysql = require('mysql2/promise');
 
+// create Category table
 const createCategoryTable = async () => {
     try {
         const connection = await mysql.createConnection({

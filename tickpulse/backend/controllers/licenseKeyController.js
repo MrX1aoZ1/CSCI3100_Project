@@ -2,6 +2,7 @@ const mysql = require('mysql2/promise');
 const connectDB = require('../config/db'); // Assuming you have a connectDB function to establish a connection
 const licenses = require('../licenseKey');
 
+// Get License Key
 const getLicenseKey = async (req, res) => {
   try {
     const connection = await connectDB();

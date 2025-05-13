@@ -1,4 +1,4 @@
-// The only two license key that is available
+// The license key that is available
 
 const licenses = {
   "BK67-M61S-DH4Y-H6E9": { type: "normal" },

@@ -4,6 +4,7 @@ const { getTimerRecord, createTimerRecord } = require('../controllers/timerContr
 
 const router = express.Router();  
 
+// Timer Routes
 router.get('/', protect, getTimerRecord); // Get all timer records
 router.post('/', protect, createTimerRecord); // Create a new timer record
 

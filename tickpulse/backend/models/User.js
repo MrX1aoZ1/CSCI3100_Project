@@ -1,6 +1,7 @@
 // ./backend/models/User.js
 const mysql = require('mysql2/promise');
 
+// create User table
 const createUserTable = async () => {
     try {
         // Connect to MySQL without specifying a database
