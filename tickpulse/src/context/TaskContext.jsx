@@ -33,7 +33,7 @@ export function TaskProvider({ children }) {
         const categories = await taskApi.getAllCategories();
         if (Array.isArray(categories)) {
           const transformedCategories = categories.map(cat => ({
-            id: cat.category_id ? cat.category_id.toString() : `temp-${Math.random()}`,
+            id: cat.category_name || cat.category_id?.toString() || 'unnamed',
             name: cat.category_name || 'Unnamed Category'
           }));
           
