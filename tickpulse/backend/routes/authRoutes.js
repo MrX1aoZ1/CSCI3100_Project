@@ -8,8 +8,6 @@ const { sendResponse } = require('../utils/response');
 const { checkNotAuthenticated } = require('../middleware/authMiddleware');
 const connectDB = require('../config/db');
 
-// const users = require('../data/users');
-
 // Passport Initialization
 const initializePassport = require('../passport-config');
 initializePassport(passport);
@@ -53,7 +51,7 @@ router.post('/sign-up', checkNotAuthenticated, async (req, res) => {
   }
 });
 
-//Login
+// Login
 router.post('/login', checkNotAuthenticated, (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) {
@@ -67,8 +65,8 @@ router.post('/login', checkNotAuthenticated, (req, res, next) => {
 
     req.login(user, async (err) => {
       if (err) {
-        console.error('会话错误:', err);
-        return sendResponse.error(res, '会话初始化失败', 500);
+        console.error('Session Error:', err);
+        return sendResponse.error(res, 'Session initialization failed', 500);
       }
 
       try {

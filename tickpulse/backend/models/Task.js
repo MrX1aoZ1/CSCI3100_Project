@@ -1,8 +1,10 @@
 // ./backend/models/Task.js
 const mysql = require('mysql2/promise');
 
+// create Task table
 const createTaskTable = async () => {
     try {
+        // Connect to MySQL database
         const connection = await mysql.createConnection({
             host: process.env.MYSQL_HOST,
             user: process.env.MYSQL_USER,
@@ -10,6 +12,7 @@ const createTaskTable = async () => {
             database: process.env.MYSQL_DATABASE,
         });
 
+        // Create the Tasks table
         const createTableQuery = `
             CREATE TABLE IF NOT EXISTS Tasks (
                 id INT AUTO_INCREMENT PRIMARY KEY,

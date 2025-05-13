@@ -1,8 +1,7 @@
-// The only two license key that is available
+// The license key that is available
 
 const licenses = {
   "BK67-M61S-DH4Y-H6E9": { type: "normal" },
-  "9X7P-2R4F-8K3Q-5T6Z": { type: "normal" },
   "9X7P-2R4F-8K3Q-5T6Z": { type: "normal" },
   "3F9K-7T2W-4XQZ-8R5Y": { type: "normal" },
   "L2M9-N4P6-Q8R1-S3T5": { type: "normal" },

@@ -1,6 +1,8 @@
 const LocalStrategy = require('passport-local').Strategy
 const bcrypt = require('bcrypt')
 const connectDB = require('./config/db');
+
+// Obtain user info. by email from the database
 async function getUserByEmail(email) {
   const connection = await connectDB();
   try {
@@ -11,6 +13,7 @@ async function getUserByEmail(email) {
   }
 }
 
+// Obtain user info. by ID from database
 async function getUserById(id) {
   const connection = await connectDB();
   try {
@@ -21,6 +24,7 @@ async function getUserById(id) {
   }
 }
 
+// Password comparision with the database
 function initialize(passport) {
   passport.use(
     new LocalStrategy(
