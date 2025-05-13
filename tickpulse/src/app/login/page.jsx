@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FiMail, FiLock } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useState, useEffect } from 'react';
 
@@ -11,6 +11,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formError, setFormError] = useState(undefined);
 
@@ -42,7 +43,7 @@ export default function LoginPage() {
           'http://localhost:3000/auth/login',
           {
             method: 'POST',
-            headers: {'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
           }
         );
@@ -79,7 +80,7 @@ export default function LoginPage() {
 
       } catch (error) {
         setIsLoading(false);
-        setFormError("網絡錯誤，請稍後再試");
+        setFormError("Server error, please try again later");
       }
     },
     [email, password, router],
@@ -89,9 +90,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-stone-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
-        {/* 登錄卡片 */}
         <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
-          {/* 標題 */}
+          {/* Title */}
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           </div>
@@ -114,15 +114,21 @@ export default function LoginPage() {
 
             {/* Password */}
             <div className="relative">
-              <FiLock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-500"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                 placeholder="Password"
                 value={password}
                 onChange={(event) => {
                   setPassword(event.target.value);
-                }}
+                }} 
               />
             </div>
 
